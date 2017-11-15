@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="default">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=consolas:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+
+
+
+
+  <meta name="keywords" content="Book,Flask," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Consen" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="这本书是偶然在一篇博客《如果有人让你推荐Python技术书，请让他看这个列表》中看到的，《Flask Web Development》被列在进阶级，豆瓣评分8.6，算是比较高，比较受公众认可的了。正好最近工作中要用到Web开发相关知识，花了两天时间看了下这本书，果然没让人失望。 这是一本写作技巧和Web技术并重的书，从第一页开始就让你爱不释手，想一口气读完，酣畅淋漓。">
+<meta name="keywords" content="Book,Flask">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《Flask Web Development》Book Review">
+<meta property="og:url" content="https://consen.github.io/2016/07/14/Flask-Web-Development-book-review/index.html">
+<meta property="og:site_name" content="Consen">
+<meta property="og:description" content="这本书是偶然在一篇博客《如果有人让你推荐Python技术书，请让他看这个列表》中看到的，《Flask Web Development》被列在进阶级，豆瓣评分8.6，算是比较高，比较受公众认可的了。正好最近工作中要用到Web开发相关知识，花了两天时间看了下这本书，果然没让人失望。 这是一本写作技巧和Web技术并重的书，从第一页开始就让你爱不释手，想一口气读完，酣畅淋漓。">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2017-11-15T15:52:16.884Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《Flask Web Development》Book Review">
+<meta name="twitter:description" content="这本书是偶然在一篇博客《如果有人让你推荐Python技术书，请让他看这个列表》中看到的，《Flask Web Development》被列在进阶级，豆瓣评分8.6，算是比较高，比较受公众认可的了。正好最近工作中要用到Web开发相关知识，花了两天时间看了下这本书，果然没让人失望。 这是一本写作技巧和Web技术并重的书，从第一页开始就让你爱不释手，想一口气读完，酣畅淋漓。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '9KGRDNMCOD',
+      apiKey: '05b35fa0784c0870ed641d7477ec8668',
+      indexName: 'myblog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://consen.github.io/2016/07/14/Flask-Web-Development-book-review/"/>
+
+
+
+
+
+  <title>《Flask Web Development》Book Review | Consen</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Consen</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2016/07/14/Flask-Web-Development-book-review/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Consen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Consen">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">《Flask Web Development》Book Review</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-14T10:23:30+00:00">
+                2016-07-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index">
+                    <span itemprop="name">Python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这本书是偶然在一篇博客<a href="http://python.jobbole.com/85620/" target="_blank" rel="external">《如果有人让你推荐Python技术书，请让他看这个列表》</a>中看到的，《Flask Web Development》被列在进阶级，豆瓣评分8.6，算是比较高，比较受公众认可的了。正好最近工作中要用到Web开发相关知识，花了两天时间看了下这本书，果然没让人失望。</p>
+<p>这是一本写作技巧和Web技术并重的书，从第一页开始就让你爱不释手，想一口气读完，酣畅淋漓。</p>
+<a id="more"></a>
+<p>作者循循善诱，先抛出一个问题，然后给出一种解决方案，有时候这种解决方案是最佳的，有时候并不完美，有副作用，这也是作者刻意安排的，因为作者又要抛出另外一个问题，引出另外一个有意思的话题。时不时一语道破天机，让你自然而然地接受知识。读书的过程中你就会感受到，隐隐有一根主线，把所有零碎的知识都串联起来。把复杂抽象的知识通过简单具体的方式呈现，娓娓道来。</p>
+<p>作者对书中内容字斟句酌，精心布局，如果没有长年累月的积累，没有深入的实践与思考，是达不到这样的高度的。</p>
+<p>也许《Flask Web Development》这本书中讲的Flask Web开发，你以后不一定会用到，但书中内容的编排，行文的方式，一定对你写文章、写书大有帮助。</p>
+<p>最后，感受下Flask的简洁优美，领悟Flask是怎样建立生态的。下面列出了《Flask Web Development》中使用到的Flask扩展：</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ pip list | grep Flask</span><br><span class="line">Flask (0.10.1)</span><br><span class="line">Flask-Bootstrap (3.3.6.0)</span><br><span class="line">Flask-HTTPAuth (3.1.2)</span><br><span class="line">Flask-Login (0.3.2)</span><br><span class="line">Flask-Mail (0.9.1)</span><br><span class="line">Flask-Migrate (1.8.1)</span><br><span class="line">Flask-Moment (0.5.1)</span><br><span class="line">Flask-PageDown (0.2.1)</span><br><span class="line">Flask-Script (2.0.5)</span><br><span class="line">Flask-SQLAlchemy (2.1)</span><br><span class="line">Flask-WTF (0.12)</span><br></pre></td></tr></table></figure>
+<p>再看看各个模块是怎么组织起来的：<br><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask.ext.bootstrap <span class="keyword">import</span> Bootstrap</span><br><span class="line"><span class="keyword">from</span> flask.ext.mail <span class="keyword">import</span> Mail</span><br><span class="line"><span class="keyword">from</span> flask.ext.moment <span class="keyword">import</span> Moment</span><br><span class="line"><span class="keyword">from</span> flask.ext.sqlalchemy <span class="keyword">import</span> SQLAlchemy</span><br><span class="line"><span class="keyword">from</span> flask.ext.login <span class="keyword">import</span> LoginManager</span><br><span class="line"><span class="keyword">from</span> flask.ext.pagedown <span class="keyword">import</span> PageDown</span><br><span class="line"><span class="keyword">from</span> config <span class="keyword">import</span> config</span><br><span class="line"></span><br><span class="line">bootstrap = Bootstrap()</span><br><span class="line">mail = Mail()</span><br><span class="line">moment = Moment()</span><br><span class="line">db = SQLAlchemy()</span><br><span class="line">pagedown = PageDown()</span><br><span class="line"></span><br><span class="line">login_manager = LoginManager()</span><br><span class="line">login_manager.session_protection = <span class="string">'strong'</span></span><br><span class="line">login_manager.login_view = <span class="string">'auth.login'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_app</span><span class="params">(config_name)</span>:</span></span><br><span class="line">    app = Flask(__name__)</span><br><span class="line">    app.config.from_object(config[config_name])</span><br><span class="line">    config[config_name].init_app(app)</span><br><span class="line"></span><br><span class="line">    bootstrap.init_app(app)</span><br><span class="line">    mail.init_app(app)</span><br><span class="line">    moment.init_app(app)</span><br><span class="line">    db.init_app(app)</span><br><span class="line">    login_manager.init_app(app)</span><br><span class="line">    pagedown.init_app(app)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> app.debug <span class="keyword">and</span> <span class="keyword">not</span> app.testing <span class="keyword">and</span> <span class="keyword">not</span> app.config[<span class="string">'SSL_DISABLE'</span>]:</span><br><span class="line">        <span class="keyword">from</span> flask.ext.sslify <span class="keyword">import</span> SSLify</span><br><span class="line">        sslify = SSLify(app)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">from</span> .main <span class="keyword">import</span> main <span class="keyword">as</span> main_blueprint</span><br><span class="line">    app.register_blueprint(main_blueprint)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">from</span> .auth <span class="keyword">import</span> auth <span class="keyword">as</span> auth_blueprint</span><br><span class="line">    app.register_blueprint(auth_blueprint, url_prefix=<span class="string">'/auth'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">from</span> .api_1_0 <span class="keyword">import</span> api <span class="keyword">as</span> api_1_0_blueprint</span><br><span class="line">    app.register_blueprint(api_1_0_blueprint, url_prefix=<span class="string">'/api/v1.0'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> app</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Book/" rel="tag"># Book</a>
+          
+            <a href="/tags/Flask/" rel="tag"># Flask</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/13/why-hhkb/" rel="next" title="Why HHKB">
+                <i class="fa fa-chevron-left"></i> Why HHKB
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/07/19/switch-browser-from-mathon-to-chrome/" rel="prev" title="Switch Browser From Mathon to Chrome">
+                Switch Browser From Mathon to Chrome <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Consen" />
+            
+              <p class="site-author-name" itemprop="name">Consen</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/consen" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/xikangjie" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://mayliar.github.io" title="Mayliar" target="_blank">Mayliar</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Consen</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

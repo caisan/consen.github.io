@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="default">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=consolas:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+
+
+
+
+  <meta name="keywords" content="Anti-VM,RDTSC," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Consen" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="上篇《Anti-VM之CPUID指令》，通过CPUID指令获取CPU信息，来判断环境是否是虚拟的。这篇从时间角度判断环境是否是虚拟的。 Intel和AMD为处理器增加了虚拟化扩展（Intel VT-x, AMD AMD-V），使得操作系统不做修改就可虚拟化。以Intel VT-x为例，VMM（Virtual Machine Monitor）运行在root模式，虚拟机运行在非root模式，在非roo">
+<meta name="keywords" content="Anti-VM,RDTSC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Anti-VM之RDTSC指令">
+<meta property="og:url" content="https://consen.github.io/2016/09/12/Anti-VM-via-RDTSC/index.html">
+<meta property="og:site_name" content="Consen">
+<meta property="og:description" content="上篇《Anti-VM之CPUID指令》，通过CPUID指令获取CPU信息，来判断环境是否是虚拟的。这篇从时间角度判断环境是否是虚拟的。 Intel和AMD为处理器增加了虚拟化扩展（Intel VT-x, AMD AMD-V），使得操作系统不做修改就可虚拟化。以Intel VT-x为例，VMM（Virtual Machine Monitor）运行在root模式，虚拟机运行在非root模式，在非roo">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/blackhole.png">
+<meta property="og:updated_time" content="2017-11-15T13:13:01.976Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Anti-VM之RDTSC指令">
+<meta name="twitter:description" content="上篇《Anti-VM之CPUID指令》，通过CPUID指令获取CPU信息，来判断环境是否是虚拟的。这篇从时间角度判断环境是否是虚拟的。 Intel和AMD为处理器增加了虚拟化扩展（Intel VT-x, AMD AMD-V），使得操作系统不做修改就可虚拟化。以Intel VT-x为例，VMM（Virtual Machine Monitor）运行在root模式，虚拟机运行在非root模式，在非roo">
+<meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/blackhole.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '9KGRDNMCOD',
+      apiKey: '05b35fa0784c0870ed641d7477ec8668',
+      indexName: 'myblog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://consen.github.io/2016/09/12/Anti-VM-via-RDTSC/"/>
+
+
+
+
+
+  <title>Anti-VM之RDTSC指令 | Consen</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Consen</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2016/09/12/Anti-VM-via-RDTSC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Consen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Consen">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Anti-VM之RDTSC指令</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-12T12:08:17+00:00">
+                2016-09-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Security/" itemprop="url" rel="index">
+                    <span itemprop="name">Security</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上篇<a href="https://consen.github.io/2016/09/11/Anti-VM-via-CPUID/">《Anti-VM之CPUID指令》</a>，通过CPUID指令获取CPU信息，来判断环境是否是虚拟的。这篇从时间角度判断环境是否是虚拟的。</p>
+<p>Intel和AMD为处理器增加了虚拟化扩展（Intel <strong>VT-x</strong>, AMD <strong>AMD-V</strong>），使得操作系统不做修改就可虚拟化。以Intel VT-x为例，VMM（Virtual Machine Monitor）运行在root模式，虚拟机运行在非root模式，在非root模式下，一些指令如RDMSR，WRMSR，CPUID需要在VMM才能执行，即会触发 <strong>VM exit</strong>, 从而带来时间上的开销，通过统计时间，就可以判断当前环境是否是虚拟的。</p>
+<a id="more"></a>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/blackhole.png" alt="blackhole"></p>
+<blockquote>
+<p>The Time Stamp Counter (TSC) is a 64-bit register present on all x86 processors since the Pentium. It counts the number of cycles since reset. The instruction RDTSC returns the TSC in EDX:EAX. In x86-64 mode, RDTSC also clears the higher 32 bits of RAX and RDX. Its opcode is 0F 31.</p>
+</blockquote>
+<p>TSC是一个64位寄存器，统计CPU时钟周期，可以用来高精度统计时间。RDTSC指令读取TSC值。</p>
+<p>RDTSC和CPUID都是非特权（unprivileged）指令，可以在用户态调用。</p>
+<p>检测代码 <a href="https://github.com/consen/demo/blob/master/c/syntax/asm/rdtsc.c" target="_blank" rel="external">rdtsc.c</a> ：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> TRUE 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FALSE 0</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> <span class="title">rdtsc_diff</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ret, ret2;</span><br><span class="line">    <span class="keyword">unsigned</span> eax, edx;</span><br><span class="line">    __asm__ volatile("rdtsc" : "=a" (eax), "=d" (edx));</span><br><span class="line">    ret  = ((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)eax) | (((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)edx) &lt;&lt; <span class="number">32</span>);</span><br><span class="line">    __asm__ volatile("rdtsc" : "=a" (eax), "=d" (edx));</span><br><span class="line">    ret2  = ((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)eax) | (((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)edx) &lt;&lt; <span class="number">32</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"(%llu - %llu) "</span>, ret, ret2);</span><br><span class="line">    <span class="keyword">return</span> ret2 - ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> <span class="title">rdtsc_diff_vmexit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> ret, ret2;</span><br><span class="line">    <span class="keyword">unsigned</span> eax, edx;</span><br><span class="line">    __asm__ volatile("rdtsc" : "=a" (eax), "=d" (edx));</span><br><span class="line">    ret  = ((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)eax) | (((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)edx) &lt;&lt; <span class="number">32</span>);</span><br><span class="line">    <span class="comment">/* vm exit forced here. it uses: eax = 0; cpuid; */</span></span><br><span class="line">    __asm__ volatile("cpuid" : /* no output */ : "a"(0x00));</span><br><span class="line">    <span class="comment">/**/</span></span><br><span class="line">    __asm__ volatile("rdtsc" : "=a" (eax), "=d" (edx));</span><br><span class="line">    ret2  = ((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)eax) | (((<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>)edx) &lt;&lt; <span class="number">32</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"(%llu - %llu) "</span>, ret, ret2);</span><br><span class="line">    <span class="keyword">return</span> ret2 - ret;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cpu_rdtsc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> avg = <span class="number">0</span>, sub;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">        sub = rdtsc_diff();</span><br><span class="line">        avg = avg + sub;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"rdtsc difference: %d\n"</span>, sub);</span><br><span class="line">        usleep(<span class="number">500</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    avg = avg / <span class="number">10</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"difference average is: %d\n"</span>, avg);</span><br><span class="line">    <span class="keyword">return</span> (avg &lt; <span class="number">1000</span> &amp;&amp; avg &gt; <span class="number">0</span>) ? FALSE : TRUE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">cpu_rdtsc_force_vmexit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> avg = <span class="number">0</span>, sub;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">        sub = rdtsc_diff_vmexit();</span><br><span class="line">        avg = avg + sub;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"rdtsc_force_vmexit difference: %d\n"</span>, sub);</span><br><span class="line">        usleep(<span class="number">500</span>);</span><br><span class="line">    &#125;   </span><br><span class="line">    avg = avg / <span class="number">10</span>; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"difference average is: %d\n"</span>, avg);</span><br><span class="line">    <span class="keyword">return</span> (avg &lt; <span class="number">1000</span> &amp;&amp; avg &gt; <span class="number">0</span>) ? FALSE : TRUE;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"cpu_rdtsc: %d\n"</span>, cpu_rdtsc());</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"cpu_rdtsc_force_vmexit: %d\n"</span>, cpu_rdtsc_force_vmexit());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在物理机上运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">(2724639288020470 - 2724639288020494) rdtsc difference: 24</span><br><span class="line">(2724639289813128 - 2724639289813156) rdtsc difference: 28</span><br><span class="line">(2724639291344684 - 2724639291344708) rdtsc difference: 24</span><br><span class="line">(2724639292869608 - 2724639292869668) rdtsc difference: 60</span><br><span class="line">(2724639294412600 - 2724639294412628) rdtsc difference: 28</span><br><span class="line">(2724639295888716 - 2724639295888744) rdtsc difference: 28</span><br><span class="line">(2724639297385732 - 2724639297385760) rdtsc difference: 28</span><br><span class="line">(2724639298878740 - 2724639298878768) rdtsc difference: 28</span><br><span class="line">(2724639300371292 - 2724639300371320) rdtsc difference: 28</span><br><span class="line">(2724639301864924 - 2724639301864952) rdtsc difference: 28</span><br><span class="line">difference average is: 30</span><br><span class="line">cpu_rdtsc: 0</span><br><span class="line">(2724639303466468 - 2724639303466608) rdtsc_force_vmexit difference: 140</span><br><span class="line">(2724639304950316 - 2724639304950440) rdtsc_force_vmexit difference: 124</span><br><span class="line">(2724639306452456 - 2724639306452576) rdtsc_force_vmexit difference: 120</span><br><span class="line">(2724639307949500 - 2724639307949624) rdtsc_force_vmexit difference: 124</span><br><span class="line">(2724639309446084 - 2724639309446208) rdtsc_force_vmexit difference: 124</span><br><span class="line">(2724639310963224 - 2724639310963344) rdtsc_force_vmexit difference: 120</span><br><span class="line">(2724639312455892 - 2724639312456012) rdtsc_force_vmexit difference: 120</span><br><span class="line">(2724639313952608 - 2724639313952728) rdtsc_force_vmexit difference: 120</span><br><span class="line">(2724639315444756 - 2724639315444880) rdtsc_force_vmexit difference: 124</span><br><span class="line">(2724639316941332 - 2724639316941452) rdtsc_force_vmexit difference: 120</span><br><span class="line">difference average is: 123</span><br><span class="line">cpu_rdtsc_force_vmexit: 0</span><br></pre></td></tr></table></figure>
+<p>在VMware虚拟机上运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">(2201234633835839 - 2201234633835857) rdtsc difference: 18</span><br><span class="line">(2201234638344307 - 2201234638344325) rdtsc difference: 18</span><br><span class="line">(2201234641440343 - 2201234641440361) rdtsc difference: 18</span><br><span class="line">(2201234645264790 - 2201234645264814) rdtsc difference: 24</span><br><span class="line">(2201234648970696 - 2201234648970714) rdtsc difference: 18</span><br><span class="line">(2201234652584847 - 2201234652584865) rdtsc difference: 18</span><br><span class="line">(2201234655954692 - 2201234655954710) rdtsc difference: 18</span><br><span class="line">(2201234660290766 - 2201234660290790) rdtsc difference: 24</span><br><span class="line">(2201234662928102 - 2201234662928126) rdtsc difference: 24</span><br><span class="line">(2201234666890620 - 2201234666890638) rdtsc difference: 18</span><br><span class="line">difference average is: 19</span><br><span class="line">cpu_rdtsc: 0</span><br><span class="line">(2201234670145762 - 2201234670148696) rdtsc_force_vmexit difference: 2934</span><br><span class="line">(2201234674344607 - 2201234674347196) rdtsc_force_vmexit difference: 2589</span><br><span class="line">(2201234677321168 - 2201234677322647) rdtsc_force_vmexit difference: 1479</span><br><span class="line">(2201234681439262 - 2201234681441659) rdtsc_force_vmexit difference: 2397</span><br><span class="line">(2201234684594947 - 2201234684596750) rdtsc_force_vmexit difference: 1803</span><br><span class="line">(2201234689163149 - 2201234689165630) rdtsc_force_vmexit difference: 2481</span><br><span class="line">(2201234693566946 - 2201234693568884) rdtsc_force_vmexit difference: 1938</span><br><span class="line">(2201234699323186 - 2201234699325493) rdtsc_force_vmexit difference: 2307</span><br><span class="line">(2201234702590461 - 2201234702592354) rdtsc_force_vmexit difference: 1893</span><br><span class="line">(2201234706444177 - 2201234706446514) rdtsc_force_vmexit difference: 2337</span><br><span class="line">difference average is: 2215</span><br><span class="line">cpu_rdtsc_force_vmexit: 1</span><br></pre></td></tr></table></figure>
+<p>参考：</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Time_Stamp_Counter" target="_blank" rel="external">Wikipedia Time Stamp Counter</a></li>
+<li><a href="http://blog.badtrace.com/tag/antivm/" target="_blank" rel="external">rdtsc x86 instruction to detect virtual machines</a></li>
+<li><a href="https://people.eecs.berkeley.edu/~cthompson/papers/virt-detect.pdf" target="_blank" rel="external">Virtualization Detection: New Strategies and Their Effectiveness</a></li>
+<li><a href="https://xenbits.xen.org/docs/unstable/misc/tscmode.txt" target="_blank" rel="external">Xen TSC Mode HOWTO</a></li>
+<li><a href="http://xenbits.xen.org/docs/unstable/features/feature-levelling.html" target="_blank" rel="external">Xen Feature Levelling</a></li>
+<li><a href="http://www.ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html" target="_blank" rel="external">GCC-Inline-Assembly-HOWTO</a></li>
+<li><a href="https://github.com/a0rtega/pafish" target="_blank" rel="external">Pafish</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Anti-VM/" rel="tag"># Anti-VM</a>
+          
+            <a href="/tags/RDTSC/" rel="tag"># RDTSC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/11/Anti-VM-via-CPUID/" rel="next" title="Anti-VM之CPUID指令">
+                <i class="fa fa-chevron-left"></i> Anti-VM之CPUID指令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/20/a-network-timeout-bug/" rel="prev" title="网络连接为什么超时了">
+                网络连接为什么超时了 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Consen" />
+            
+              <p class="site-author-name" itemprop="name">Consen</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/consen" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/xikangjie" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://mayliar.github.io" title="Mayliar" target="_blank">Mayliar</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Consen</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

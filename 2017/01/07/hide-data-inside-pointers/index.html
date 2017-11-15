@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="default">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=consolas:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+
+
+
+
+  <meta name="keywords" content="pointer,memory alignment,bitwise operation," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Consen" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="上周的博客文章《Linux内核模块升级》中，讲了通过升级Linux内核驱动模块xen-evtchn，解决掉一个Xen卡死问题，原因是port_user中port重用，触发kernel BUG。evtchn中port_user的实现，对指针的应用很巧妙：  将指针存储在无符长整形（unsigned long）中。 将port是否enabled保存在无符长整形从低地址开始的第一个bit中。">
+<meta name="keywords" content="pointer,memory alignment,bitwise operation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在指针中隐藏数据">
+<meta property="og:url" content="https://consen.github.io/2017/01/07/hide-data-inside-pointers/index.html">
+<meta property="og:site_name" content="Consen">
+<meta property="og:description" content="上周的博客文章《Linux内核模块升级》中，讲了通过升级Linux内核驱动模块xen-evtchn，解决掉一个Xen卡死问题，原因是port_user中port重用，触发kernel BUG。evtchn中port_user的实现，对指针的应用很巧妙：  将指针存储在无符长整形（unsigned long）中。 将port是否enabled保存在无符长整形从低地址开始的第一个bit中。">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2017-11-15T16:29:14.557Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="在指针中隐藏数据">
+<meta name="twitter:description" content="上周的博客文章《Linux内核模块升级》中，讲了通过升级Linux内核驱动模块xen-evtchn，解决掉一个Xen卡死问题，原因是port_user中port重用，触发kernel BUG。evtchn中port_user的实现，对指针的应用很巧妙：  将指针存储在无符长整形（unsigned long）中。 将port是否enabled保存在无符长整形从低地址开始的第一个bit中。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '9KGRDNMCOD',
+      apiKey: '05b35fa0784c0870ed641d7477ec8668',
+      indexName: 'myblog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://consen.github.io/2017/01/07/hide-data-inside-pointers/"/>
+
+
+
+
+
+  <title>在指针中隐藏数据 | Consen</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Consen</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2017/01/07/hide-data-inside-pointers/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Consen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Consen">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在指针中隐藏数据</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-07T22:29:24+00:00">
+                2017-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上周的博客文章<a href="https://consen.github.io/2016/12/30/upgrade-linux-kernel-module/">《Linux内核模块升级》</a>中，讲了通过升级Linux内核驱动模块xen-evtchn，解决掉一个Xen卡死问题，原因是port_user中port重用，触发kernel BUG。evtchn中port_user的实现，对指针的应用很巧妙：</p>
+<ol>
+<li>将指针存储在无符长整形（unsigned long）中。</li>
+<li>将port是否enabled保存在无符长整形从低地址开始的第一个bit中。</li>
+</ol>
+<a id="more"></a>
+<p>下面是从<a href="https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/tree/drivers/xen/evtchn.c?h=v3.10.20" target="_blank" rel="external">evtchn.c</a>中抽取的关于port_user的实现：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">per_user_data</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">unsigned</span> <span class="keyword">long</span> *port_user;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> struct per_user_data *<span class="title">get_port_user</span><span class="params">(<span class="keyword">unsigned</span> port)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (struct per_user_data *)(port_user[port] &amp; ~<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">set_port_user</span><span class="params">(<span class="keyword">unsigned</span> port, struct per_user_data *u)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    port_user[port] = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)u;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">bool</span> <span class="title">get_port_enabled</span><span class="params">(<span class="keyword">unsigned</span> port)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> port_user[port] &amp; <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">set_port_enabled</span><span class="params">(<span class="keyword">unsigned</span> port, <span class="keyword">bool</span> enabled)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (enabled)</span><br><span class="line">        port_user[port] |= <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        port_user[port] &amp;= ~<span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">int</span> __<span class="function">init <span class="title">evtchn_init</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    port_user = kcalloc(NR_EVENT_CHANNELS, <span class="keyword">sizeof</span>(*port_user), GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> (port_user == <span class="literal">NULL</span>)</span><br><span class="line">        <span class="keyword">return</span> -ENOMEM;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>C语言中对指针进行位操作是非法的，x64系统中指针占用8字节，unsigned long也占用8字节，所以将指针存储在unsigned long中，对unsigned long进行位操作。但是问题来了，将port是否enabled保存在第一个bit，那就得要求第一个bit在位操作之前一定为0。指针转换为unsigned long后，从低地址开始的第一个bit真的为0吗？</p>
+<p>这就涉及到内存对齐了。CPU从内存中读写数据不是一次1字节，而是一次访问word size字节，一般为4字节或8字节，这样做当然是为了提升性能，所以一个变量在内存中的地址是可以整除1,2,4或8的，这就是内存对齐。如在x64系统下，unsigned long占用8字节，那么一个unsigned long变量在内存中的地址一定是可以被8整除，如地址可以为0x7fff4fcce908，但绝不会为0x7fff4fcce901，0x7fff4fcce907等不能被8整除的数值。</p>
+<p><strong>任何能被8整除的整数，转换为二进制后，从低地址开始的3个bit一定为0。</strong></p>
+<p>这个也很容易理解，并没有复杂的数学推理，整数8的二进制为<code>1000</code>，所以任何能被8整除的整数，转换为二进制后，从低地址开始的3个bit一定为0。举一反三下，任何能被4整除的整数，转换为二进制后，从低地址开始的2个bit一定为0，任何能被2整除的整数，转换为二进制后，从低地址开始的1个bit一定为0。4的二进制为<code>100</code>，2的二进制为<code>10</code>。</p>
+<p>了解了内存对齐机制，上面port_user的实现就很好理解了。</p>
+<p>其实，在Linux内核中，<strong>红黑树的实现就利用了指针隐藏数据</strong>。红黑树节点的定义为rb_node（<a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/rbtree.h#n36" target="_blank" rel="external">include/linux/rbtree.h</a>）：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> &#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>  __rb_parent_color;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">rb_right</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">rb_node</span> *<span class="title">rb_left</span>;</span></span><br><span class="line">&#125; __attribute__((aligned(<span class="keyword">sizeof</span>(<span class="keyword">long</span>))));</span><br></pre></td></tr></table></figure>
+<p><code>__rb_parent_color</code>既用来存储父节点指针，也用来存储节点颜色，第一个bit为0表示红1表示黑。</p>
+<p>再看下对父节点指针的访问（<a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/rbtree.h#n48" target="_blank" rel="external">include/linux/rbtree.h</a>）：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> rb_parent(r)   ((struct rb_node *)((r)-&gt;__rb_parent_color &amp; ~3))</span></span><br></pre></td></tr></table></figure>
+<p>对颜色的访问（<a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/rbtree_augmented.h#n102" target="_blank" rel="external">include/linux/rbtree_augmented.h</a>）:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __rb_color(pc)     ((pc) &amp; 1)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> rb_color(rb)       __rb_color((rb)-&gt;__rb_parent_color)</span></span><br></pre></td></tr></table></figure>
+<hr>
+<p>说到内存对齐，前段时间发过一条<a href="http://weibo.com/1996731561/Emg4Ytfty" target="_blank" rel="external">微博</a>，只有一行代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="number">127</span>         contentsz = (length + <span class="number">7</span>) &amp; ~<span class="number">7</span></span><br></pre></td></tr></table></figure>
+<p>这行代码摘自Xen源码<a href="http://xenbits.xenproject.org/gitweb/?p=xen.git;a=blob;f=tools/python/xen/migration/libxl.py;hb=HEAD#l127" target="_blank" rel="external">tools/python/xen/migration/libxl.py</a>，很巧妙。简单讲下这行代码的用途，假设现在以8字节为单位存储数据，不足8字节的用0补齐，那么现在一段数据data的实际长度为length，存储后的长度则为contentsz，这样就可以算出总共填充了（contentsz - length）字节的0。如length为8，contentsz则为8，length为9，contentsz则为16。</p>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="http://arjunsreedharan.org/post/105266490272/hide-data-inside-pointers" target="_blank" rel="external">Hide data inside pointers</a></li>
+<li><a href="http://www.songho.ca/misc/alignment/dataalign.html" target="_blank" rel="external">Data Alignment</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Word_(computer_architecture)" target="_blank" rel="external">Word (computer architecture)</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pointer/" rel="tag"># pointer</a>
+          
+            <a href="/tags/memory-alignment/" rel="tag"># memory alignment</a>
+          
+            <a href="/tags/bitwise-operation/" rel="tag"># bitwise operation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/31/goodbye-2016-hello-2017/" rel="next" title="2016年终总结，恭贺2017">
+                <i class="fa fa-chevron-left"></i> 2016年终总结，恭贺2017
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/14/four-linux-development-tools/" rel="prev" title="Linux开发四件利器--Vim Tmux Git Zsh">
+                Linux开发四件利器--Vim Tmux Git Zsh <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Consen" />
+            
+              <p class="site-author-name" itemprop="name">Consen</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/consen" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/xikangjie" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://mayliar.github.io" title="Mayliar" target="_blank">Mayliar</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Consen</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
