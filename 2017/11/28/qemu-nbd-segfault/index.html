@@ -90,7 +90,7 @@
 
 
 
-  <meta name="keywords" content="SSH," />
+  <meta name="keywords" content="Xen,segfault," />
 
 
 
@@ -103,21 +103,20 @@
 
 
 
-<meta name="description" content="自从开发完Xenforce+XenforceHub，虚拟机镜像部署变得异常简单，直接在要部署镜像的服务器上运行xenforce pull命令即可将需要的镜像从XenforceHub下载到本地，镜像可直接使用，无需更改配置，而且xenforce pull命令还会处理好镜像依赖，将依赖的镜像也下载下来。镜像部署变得完美，一切变得自动化，一切按照理想的方式工作着。">
-<meta name="keywords" content="SSH">
+<meta name="description" content="segfault段错误是软件开发中经常会遇到的错误，该错误是由非法内存访问造成的，如空指针引用；在只读内存区域进行写操作；访问受保护的内存区域等。在不同场景下，segfault的解决难度大不相同，比如有源代码并且segfault很容易复现，重新编译一个调试版可执行文件，用gdb调试马上就能定位问题。但是如果segfault很难复现，或者没有调式版可用呢？又如何去定位问题呢？ 最近就在线上环境遇到一">
+<meta name="keywords" content="Xen,segfault">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SSH远程端口转发">
-<meta property="og:url" content="https://consen.github.io/2016/11/22/ssh-remote-port-forwarding/index.html">
+<meta property="og:title" content="segfault段错误问题修复">
+<meta property="og:url" content="https://consen.github.io/2017/11/28/qemu-nbd-segfault/index.html">
 <meta property="og:site_name" content="Consen">
-<meta property="og:description" content="自从开发完Xenforce+XenforceHub，虚拟机镜像部署变得异常简单，直接在要部署镜像的服务器上运行xenforce pull命令即可将需要的镜像从XenforceHub下载到本地，镜像可直接使用，无需更改配置，而且xenforce pull命令还会处理好镜像依赖，将依赖的镜像也下载下来。镜像部署变得完美，一切变得自动化，一切按照理想的方式工作着。">
+<meta property="og:description" content="segfault段错误是软件开发中经常会遇到的错误，该错误是由非法内存访问造成的，如空指针引用；在只读内存区域进行写操作；访问受保护的内存区域等。在不同场景下，segfault的解决难度大不相同，比如有源代码并且segfault很容易复现，重新编译一个调试版可执行文件，用gdb调试马上就能定位问题。但是如果segfault很难复现，或者没有调式版可用呢？又如何去定位问题呢？ 最近就在线上环境遇到一">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/ssh-remote-port-forwarding/pull.png">
-<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/ssh-remote-port-forwarding/pull2.gif">
-<meta property="og:updated_time" content="2017-11-15T16:03:51.866Z">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/qemu-nbd-segfault/qemu-nbd-asm.png">
+<meta property="og:updated_time" content="2017-11-28T21:51:06.054Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="SSH远程端口转发">
-<meta name="twitter:description" content="自从开发完Xenforce+XenforceHub，虚拟机镜像部署变得异常简单，直接在要部署镜像的服务器上运行xenforce pull命令即可将需要的镜像从XenforceHub下载到本地，镜像可直接使用，无需更改配置，而且xenforce pull命令还会处理好镜像依赖，将依赖的镜像也下载下来。镜像部署变得完美，一切变得自动化，一切按照理想的方式工作着。">
-<meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/ssh-remote-port-forwarding/pull.png">
+<meta name="twitter:title" content="segfault段错误问题修复">
+<meta name="twitter:description" content="segfault段错误是软件开发中经常会遇到的错误，该错误是由非法内存访问造成的，如空指针引用；在只读内存区域进行写操作；访问受保护的内存区域等。在不同场景下，segfault的解决难度大不相同，比如有源代码并且segfault很容易复现，重新编译一个调试版可执行文件，用gdb调试马上就能定位问题。但是如果segfault很难复现，或者没有调式版可用呢？又如何去定位问题呢？ 最近就在线上环境遇到一">
+<meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/qemu-nbd-segfault/qemu-nbd-asm.png">
 
 
 
@@ -147,13 +146,13 @@
 
 
 
-  <link rel="canonical" href="https://consen.github.io/2016/11/22/ssh-remote-port-forwarding/"/>
+  <link rel="canonical" href="https://consen.github.io/2017/11/28/qemu-nbd-segfault/"/>
 
 
 
 
 
-  <title>SSH远程端口转发 | Consen</title>
+  <title>segfault段错误问题修复 | Consen</title>
   
 
 
@@ -270,7 +269,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2016/11/22/ssh-remote-port-forwarding/">
+    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2017/11/28/qemu-nbd-segfault/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Consen">
@@ -287,7 +286,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">SSH远程端口转发</h2>
+          <h2 class="post-title" itemprop="name headline">segfault段错误问题修复</h2>
         
 
         <div class="post-meta">
@@ -297,8 +296,8 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-22T19:04:45+00:00">
-                2016-11-22
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-11-28T21:36:22+00:00">
+                2017-11-28
               </time>
             
 
@@ -318,8 +317,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Toolbox/" itemprop="url" rel="index">
-                    <span itemprop="name">Toolbox</span>
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
                   </a>
                 </span>
 
@@ -355,22 +354,43 @@
       
 
       
-        <p>自从开发完Xenforce+XenforceHub，虚拟机镜像部署变得异常简单，直接在要部署镜像的服务器上运行<code>xenforce pull</code>命令即可将需要的镜像从XenforceHub下载到本地，镜像可直接使用，无需更改配置，而且<code>xenforce pull</code>命令还会处理好镜像依赖，将依赖的镜像也下载下来。镜像部署变得完美，一切变得自动化，一切按照理想的方式工作着。</p>
+        <p>segfault段错误是软件开发中经常会遇到的错误，该错误是由非法内存访问造成的，如空指针引用；在只读内存区域进行写操作；访问受保护的内存区域等。在不同场景下，segfault的解决难度大不相同，比如有源代码并且segfault很容易复现，重新编译一个调试版可执行文件，用gdb调试马上就能定位问题。但是如果segfault很难复现，或者没有调式版可用呢？又如何去定位问题呢？</p>
+<p>最近就在线上环境遇到一个qemu-ndb造成的segfault错误，影响很严重。qemu-nbd要用到nbd内核模块，segfault错误出现时，qemu-nbd相关进程卡主无响应，造成业务无法正常运行，甚至强制kill掉qemu-nbd进程时，kill进程也会卡主，只能断电重启服务器使业务临时恢复正常运行。必须从根本上解决该问题，才能避免一些不必要的麻烦。</p>
 <a id="more"></a>
-<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/ssh-remote-port-forwarding/pull.png" alt=""></p>
-<p>但是，因业务原因，一部分服务器部署在隔离网，导致服务器无法访问XenforceHub，无法使用<code>xenforce pull</code>命令部署镜像，一夜回到解放前，即使有<code>scp</code>、<code>rsync</code>、<code>nc</code>等一些优秀工具，可以借助用来手动同步镜像，还是太麻烦，程序猿懒起来，自己都害怕。最理想的方式还是用<code>xenforce pull</code>部署镜像，即使服务器在隔离网内。程序猿的首要任务是把不可能变得可能，把复杂变得简单，把低效变得高效。</p>
-<p>隐隐约约想起当初学SSH的时候，SSH有个很精妙的用法，比如A、B两台服务器之间要实现互通，但是现在A可以访问B，B却不能访问A，那么B怎样访问A呢？可以借助SSH的远程端口转发功能。今天仔细研究了下，果然派上了用场。</p>
-<p>以服务器server1为例，XenforceHub服务器可以访问server1，但是server1无法访问XenforceHub，在XenforceHub服务器上运行以下命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssh -R 9000:localhost:9000 xikangjie@server1</span><br></pre></td></tr></table></figure>
-<p>这样，在服务器server1上访问localhost:9000，就相当于访问XenforceHub:9000，又可以愉快地用命令<code>xenforce pull</code>部署镜像了。</p>
-<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/ssh-remote-port-forwarding/pull2.gif" alt=""></p>
-<hr>
-<p>参考：</p>
+<p>在这种场景下，遇到了以下几个难点：</p>
+<ol>
+<li>难以复现，线上几十台服务器大约每隔1周有1~2台上qemu-nbd会出现segfault错误，几乎无法通过手工方式复现；</li>
+<li>有源代码，但是在本地测试调式版qemu-nbd，性能极差，无法投入线上使用，否则影响线上业务正常运行；</li>
+<li>线上运行的qemu-nbd在编译时加了<code>-O2 -fomit-frame-pointer</code>优化参数，增加了反汇编代码的分析难度；</li>
+<li>线上运行的qemu-nbd符号表信息被strip掉了，进一步增加了反汇编代码的分析难度；</li>
+<li>segfault错误出现时在/var/log/message中只有一行日志信息，没有堆栈等更详细的信息。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kernel: qemu-nbd[13647]: segfault at 100 ip 0000561c8817d1c7 sp 00007fc8f1ce9c00 error 4 in qemu-nbd[561c88107000+155000]</span><br></pre></td></tr></table></figure>
+<p><strong>也就是说，只能通过这一行日志信息，加上qemu-nbd二进制文件和源代码，去定位具体哪一行代码造成了segfault。</strong></p>
+<p>首先看下segfault日志的含义：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">qemu-nbd[13647]                    可执行文件名[进程ID]</span><br><span class="line">at 100                             出错时访问的内存地址</span><br><span class="line">ip 0000561c8817d1c7                出错时的指令指针</span><br><span class="line">sp 00007fc8f1ce9c00                出错时的栈指针</span><br><span class="line">error 4                            错误码</span><br><span class="line">qemu-nbd[561c88107000+155000]      进程虚拟内存区域(VMA)对应的文件名[VMA起始地址+VMA大小]</span><br></pre></td></tr></table></figure>
+<p>错误码的定义:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Page fault error code bits:</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *   bit 0 ==    0: no page found   1: protection fault</span></span><br><span class="line"><span class="comment"> *   bit 1 ==    0: read access     1: write access</span></span><br><span class="line"><span class="comment"> *   bit 2 ==    0: kernel-mode access  1: user-mode access</span></span><br><span class="line"><span class="comment"> *   bit 3 ==               1: use of reserved bit detected</span></span><br><span class="line"><span class="comment"> *   bit 4 ==               1: fault was an instruction fetch</span></span><br><span class="line"><span class="comment"> *   bit 5 ==               1: protection keys block access</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">enum</span> x86_pf_error_code &#123;</span><br><span class="line"></span><br><span class="line">    PF_PROT     =       <span class="number">1</span> &lt;&lt; <span class="number">0</span>,</span><br><span class="line">    PF_WRITE    =       <span class="number">1</span> &lt;&lt; <span class="number">1</span>,</span><br><span class="line">    PF_USER     =       <span class="number">1</span> &lt;&lt; <span class="number">2</span>,</span><br><span class="line">    PF_RSVD     =       <span class="number">1</span> &lt;&lt; <span class="number">3</span>,</span><br><span class="line">    PF_INSTR    =       <span class="number">1</span> &lt;&lt; <span class="number">4</span>,</span><br><span class="line">    PF_PK       =       <span class="number">1</span> &lt;&lt; <span class="number">5</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>由此可见，错误码4(100)表示从用户态读时出现no page found。</p>
+<p>生成反汇编代码：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ objdump -d -M intel qemu-nbd &gt; qemu-nbd.asm</span><br></pre></td></tr></table></figure>
+<p>有了以上信息，即可通过ip指令指针在反汇编代码中定位出错指令。指令地址：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">0x0000561c8817d1c7 - 0x561c88107000 = 0x761c7</span><br></pre></td></tr></table></figure>
+<p>由于线上运行的qemu-nbd的符号信息被strip掉了（为了使发布的可执行文件尽可能小，并增加逆向难度，一般会将符号信息剔除掉），所以从反汇编代码中很难确定0x761c7指令地址到底对应的是源代码的哪一行。</p>
+<p>不过万幸的是，当初编译xen时的编译环境还在，没有strip掉符号信息的qemu-nbd版本还在，位于<code>tools/qemu-xen-dir/qemu-nbd</code>，strip版本位于<code>dist/install/usr/local/lib/xen/bin/qemu-nbd</code>。现在对比下非strip和strip版本的反汇编代码：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ vim -d qemu-nbd.asm qemu-nbd-strip.asm</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/qemu-nbd-segfault/qemu-nbd-asm.png" alt="diff"></p>
+<p>有符号信息对于定位源代码帮助非常大，由汇编代码可以看出问题出在函数<code>bdrv_co_flush</code>，执行指令<code>mov    rax,QWORD PTR [rdx+0x100]</code>时出错，此时rdx为0，所以segfault日志信息中才有<code>at 100</code>。进一步分析汇编代码，确定rbx为函数<code>bdrv_co_flush</code>的第一个参数<code>BlockDriverState *bs</code>，rdx为<code>bs-&gt;drv</code>，rdx+0x100为<code>bs-&gt;drv-&gt;bdrv_co_flush</code>。至此可以确定segfault是由于<code>bs-drv</code>为NULL造成的，即产生了空指针引用。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="number">2292</span>     <span class="comment">/* Write back all layers by calling one driver function */</span></span><br><span class="line"><span class="number">2293</span>     <span class="keyword">if</span> (bs-&gt;drv-&gt;bdrv_co_flush) &#123;</span><br><span class="line"><span class="number">2294</span>         ret = bs-&gt;drv-&gt;bdrv_co_flush(bs);</span><br><span class="line"><span class="number">2295</span>         <span class="keyword">goto</span> out;</span><br><span class="line"><span class="number">2296</span>     &#125;</span><br></pre></td></tr></table></figure>
+<p>关键函数及数据结构：</p>
 <ul>
-<li><a href="http://www.ruanyifeng.com/blog/2011/12/ssh_port_forwarding.html" target="_blank" rel="external">SSH原理与运用（二）：远程操作与端口转发</a></li>
-<li><a href="http://www.ibm.com/developerworks/cn/linux/l-cn-sshforward/" target="_blank" rel="external">实战 SSH 端口转发</a></li>
-<li><a href="http://blog.trackets.com/2014/05/17/ssh-tunnel-local-and-remote-port-forwarding-explained-with-examples.html" target="_blank" rel="external">SSH Tunnel - Local and Remote Port Forwarding Explained With Examples</a></li>
+<li><a href="http://xenbits.xen.org/gitweb/?p=qemu-xen.git;a=blob;f=block/io.c;h=420944d80db104188445e198ce45eb890fc6edfb;hb=4220231eb22235e757d269722b9f6a594fbcb70f#l2292" target="_blank" rel="external">bdrv_co_flush()</a></li>
+<li><a href="http://xenbits.xen.org/gitweb/?p=qemu-xen.git;a=blob;f=include/block/block_int.h;h=1e939de4fe5a3b04b418edb4c108e82c3c93a0f8;hb=4220231eb22235e757d269722b9f6a594fbcb70f#l427" target="_blank" rel="external">struct BlockDriverState</a></li>
+<li><a href="http://xenbits.xen.org/gitweb/?p=qemu-xen.git;a=blob;f=include/block/block_int.h;h=1e939de4fe5a3b04b418edb4c108e82c3c93a0f8;hb=4220231eb22235e757d269722b9f6a594fbcb70f#l87" target="_blank" rel="external">struct BlockDriver</a></li>
 </ul>
+<p>根据数据结构及内存对齐，确定<code>[rbx+0x38]</code>为<code>bs-&gt;drv</code>即rdx，<code>[rdx+0x100]</code>为<code>bs-&gt;drv-&gt;bdrv_co_flush</code>。</p>
+<p>确定了引起segfault的具体代码，问题就很好解决了。其时qemu主分支对此问题已经有一定修复，<a href="https://git.qemu.org/?p=qemu.git;a=commitdiff;h=d470ad42acfc73c45d3e8ed5311a491160b4c100;hp=93bbaf03ff7fd490e823814b8f5d6849a7b71a64" target="_blank" rel="external">block: Guard against NULL bs-&gt;drv</a>。</p>
+<p>如果能进一步深入分析引起<code>bs-&gt;drv</code>为空指针的原因，并能手动复现，找出攻击路径，即可发起DOS(拒绝服务)攻击。</p>
 
       
     </div>
@@ -388,7 +408,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/SSH/" rel="tag"># SSH</a>
+            <a href="/tags/Xen/" rel="tag"># Xen</a>
+          
+            <a href="/tags/segfault/" rel="tag"># segfault</a>
           
         </div>
       
@@ -401,8 +423,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/10/09/trip-to-japan/" rel="next" title="日本之行">
-                <i class="fa fa-chevron-left"></i> 日本之行
+              <a href="/2017/02/14/four-linux-development-tools/" rel="next" title="Linux开发四件利器--Vim Tmux Git Zsh">
+                <i class="fa fa-chevron-left"></i> Linux开发四件利器--Vim Tmux Git Zsh
               </a>
             
           </div>
@@ -410,10 +432,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/12/16/upgrade-xen45-to-xen48/" rel="prev" title="升级Xen 4.5到Xen 4.8">
-                升级Xen 4.5到Xen 4.8 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
