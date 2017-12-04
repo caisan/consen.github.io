@@ -355,7 +355,7 @@
       
         
           <p>segfault段错误是软件开发中经常会遇到的错误，该错误是由非法内存访问造成的，如空指针引用；在只读内存区域进行写操作；访问受保护的内存区域等。在不同场景下，segfault的解决难度大不相同，比如有源代码并且segfault很容易复现，重新编译一个调试版可执行文件，用gdb调试马上就能定位问题。但是如果segfault很难复现，或者没有调式版可用呢？又如何去定位问题呢？</p>
-<p>最近就在线上环境遇到一个qemu-ndb造成的segfault错误，影响很严重。qemu-nbd要用到nbd内核模块，segfault错误出现时，qemu-nbd相关进程卡主无响应，造成业务无法正常运行，甚至强制kill掉qemu-nbd进程时，kill进程也会卡主，只能断电重启服务器使业务临时恢复正常运行。必须从根本上解决该问题，才能避免一些不必要的麻烦。</p>
+<p>最近就在线上环境遇到一个qemu-ndb造成的segfault错误，影响很严重。qemu-nbd要用到nbd内核模块，segfault错误出现时，qemu-nbd相关进程卡主无响应，造成业务无法正常运行，甚至无法强制kill掉qemu-nbd进程，只能断电重启服务器使业务临时恢复正常运行。根据现象判断，qemu-nbd进程处于uninterruptible sleep状态，通过ps命令可以看出qemu-nbd进程的状态为D(uninterruptible sleep)。相较于interruptible sleep状态，uninterruptible sleep状态下的进程对信号没有响应，无法对它发送SIGKILL信号，也就无法kill掉，只能重启服务器。该状态出现一般是IO出了问题，必须从根本上解决该问题，才能避免一些不必要的麻烦。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/11/28/qemu-nbd-segfault/#more" rel="contents">
@@ -1758,7 +1758,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
