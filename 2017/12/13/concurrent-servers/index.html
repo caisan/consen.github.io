@@ -90,7 +90,7 @@
 
 
 
-  <meta name="keywords" content="Vim,Tmux,Git,Zsh," />
+  <meta name="keywords" content="Concurrency," />
 
 
 
@@ -103,22 +103,24 @@
 
 
 
-<meta name="description" content="人与计算机交互，常见的方式有GUI（Graph User Interface，图形界面）、CLI（Command Line Interface，命令行）、TUI（Touch User Interface，触屏）等。交互方式也会影响软件开发，比如在Windows下，就可以使用强大的IDE — Visual Studio，而大多数Linux开发环境只提供了命令行界面，只能用命令行工具进行开发。 虽然命">
-<meta name="keywords" content="Vim,Tmux,Git,Zsh">
+<meta name="description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发">
+<meta name="keywords" content="Concurrency">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux开发四件利器--Vim Tmux Git Zsh">
-<meta property="og:url" content="https://consen.github.io/2017/02/14/four-linux-development-tools/index.html">
+<meta property="og:title" content="并发服务实现">
+<meta property="og:url" content="https://consen.github.io/2017/12/13/concurrent-servers/index.html">
 <meta property="og:site_name" content="Consen">
-<meta property="og:description" content="人与计算机交互，常见的方式有GUI（Graph User Interface，图形界面）、CLI（Command Line Interface，命令行）、TUI（Touch User Interface，触屏）等。交互方式也会影响软件开发，比如在Windows下，就可以使用强大的IDE — Visual Studio，而大多数Linux开发环境只提供了命令行界面，只能用命令行工具进行开发。 虽然命">
+<meta property="og:description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/four-linux-development-tools/vim.png">
-<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/four-linux-development-tools/tmux.png">
-<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/four-linux-development-tools/zsh.png">
-<meta property="og:updated_time" content="2017-11-15T13:13:01.977Z">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/sequential-flow.png">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/concurrent-flow.png">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/multiplexed-flow.png">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/libuv-architecture.png">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/libuv-loop_iteration.png">
+<meta property="og:updated_time" content="2017-12-14T00:00:32.156Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux开发四件利器--Vim Tmux Git Zsh">
-<meta name="twitter:description" content="人与计算机交互，常见的方式有GUI（Graph User Interface，图形界面）、CLI（Command Line Interface，命令行）、TUI（Touch User Interface，触屏）等。交互方式也会影响软件开发，比如在Windows下，就可以使用强大的IDE — Visual Studio，而大多数Linux开发环境只提供了命令行界面，只能用命令行工具进行开发。 虽然命">
-<meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/four-linux-development-tools/vim.png">
+<meta name="twitter:title" content="并发服务实现">
+<meta name="twitter:description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发">
+<meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/sequential-flow.png">
 
 
 
@@ -148,13 +150,13 @@
 
 
 
-  <link rel="canonical" href="https://consen.github.io/2017/02/14/four-linux-development-tools/"/>
+  <link rel="canonical" href="https://consen.github.io/2017/12/13/concurrent-servers/"/>
 
 
 
 
 
-  <title>Linux开发四件利器--Vim Tmux Git Zsh | Consen</title>
+  <title>并发服务实现 | Consen</title>
   
 
 
@@ -271,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2017/02/14/four-linux-development-tools/">
+    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2017/12/13/concurrent-servers/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Consen">
@@ -288,7 +290,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">Linux开发四件利器--Vim Tmux Git Zsh</h2>
+          <h2 class="post-title" itemprop="name headline">并发服务实现</h2>
         
 
         <div class="post-meta">
@@ -298,8 +300,8 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-14T21:59:57+00:00">
-                2017-02-14
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-13T23:46:11+00:00">
+                2017-12-13
               </time>
             
 
@@ -319,8 +321,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Toolbox/" itemprop="url" rel="index">
-                    <span itemprop="name">Toolbox</span>
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
                   </a>
                 </span>
 
@@ -356,61 +358,29 @@
       
 
       
-        <p>人与计算机交互，常见的方式有GUI（Graph User Interface，图形界面）、CLI（Command Line Interface，命令行）、TUI（Touch User Interface，触屏）等。交互方式也会影响软件开发，比如在Windows下，就可以使用强大的IDE — Visual Studio，而大多数Linux开发环境只提供了命令行界面，只能用命令行工具进行开发。</p>
-<p>虽然命令行的学习成本比图形界面高，但熟练运用命令行后开发效率一点不比图形界面低，而且没有图形界面的干扰，更容易抓住技术的本质。下面就介绍Linux开发的四件利器，几乎是做Linux开发绕不开的工具。</p>
+        <p>最近拜读了Eli Bendersky写的<a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/" target="_blank" rel="external">Concurrent Servers</a>系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。</p>
+<p>作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发送的数据更改状态，并根据状态产生不同行为。</p>
 <a id="more"></a>
-<h2 id="Vim"><a href="#Vim" class="headerlink" title="Vim"></a>Vim</h2><p>Linux下的编辑器，<a href="http://www.vim.org/" target="_blank" rel="external">Vim</a>或<a href="https://www.gnu.org/software/emacs/" target="_blank" rel="external">Emacs</a>二选一，我选了普及率更高的Vim。Vim的学习曲线比较陡峭，但只要稍微克服下刚开始先入为主的抵触与害怕，你慢慢会发现Vim越用越有意思，越来越离不开Vim。如果你之前一直用的是图形界面的编辑器，用完Vim会对编辑器有个全新的认识，对文本的结构也会有全新认识，从文本到段落到句子到单词到字符，Vim能做到精确掌控。</p>
-<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/four-linux-development-tools/vim.png" alt="vim"></p>
-<p>Vim的强大离不开灵活的配置及丰富的扩展，你可以将Vim配置成你喜欢的样子，我的Vim配置已放在GitHub，<a href="https://github.com/consen/dotfiles/blob/master/vim/vimrc" target="_blank" rel="external">dotfiles/vim/vimrc</a>。从配置可以看出，对于扩展插件管理我用的是<a href="https://github.com/junegunn/vim-plug/" target="_blank" rel="external">vim-plug</a>，几个比较有意思的扩展：</p>
-<ul>
-<li><a href="https://github.com/terryma/vim-multiple-cursors" target="_blank" rel="external">vim-multiple-cursord</a></li>
-<li><a href="https://github.com/itspriddle/vim-stripper" target="_blank" rel="external">vim-stripper</a></li>
-<li><a href="https://github.com/airblade/vim-gitgutter" target="_blank" rel="external">vim-gitgutter</a></li>
-<li><a href="https://github.com/kien/rainbow_parentheses.vim" target="_blank" rel="external">rainbow_parentheses</a></li>
-<li><a href="https://github.com/godlygeek/tabular" target="_blank" rel="external">tabular</a></li>
-</ul>
-<p>你也可以在<a href="http://vimawesome.com/" target="_blank" rel="external">Vim Awesome</a>查看各插件的排名。</p>
-<p>Vim的各种使用技巧需要慢慢积累，如我之前的博客<a href="https://consen.github.io/2016/05/15/vim-tips/">《Vim Tips》</a>。几个比较精华的Vim学习资源：</p>
-<ul>
-<li><a href="https://vim.swaroopch.com/" target="_blank" rel="external">A Byte of Vim</a></li>
-<li><a href="http://vim.wikia.com/wiki/Vim_Tips_Wiki" target="_blank" rel="external">Vim Tips Wiki</a></li>
-<li><a href="http://vimcasts.org/" target="_blank" rel="external">Vim Casts</a></li>
-</ul>
-<h2 id="Tmux"><a href="#Tmux" class="headerlink" title="Tmux"></a>Tmux</h2><p>如果你是远程连接到Linux服务器进行开发，一定遇到过下面几个问题：</p>
-<ol>
-<li>有时可能会同时进行多项操作，不得不打开多个窗口建立多个远程连接。</li>
-<li>如果网络出现抖动，连接突然中断，又得重新建立连接，重新恢复之前的操作。</li>
-<li>想在一个屏幕上不切换窗口，看到所有窗口的输出。</li>
-</ol>
-<p><a href="http://tmux.github.io/" target="_blank" rel="external">Tmux</a>（terminal multiplexer）很好地解决了上面的问题，只要建立一个远程连接，就可以开启多个终端，同时进行操作，一个查看文档，一个写代码，一个编译，一个运行程序。</p>
-<p>我的Tmux配置，<a href="https://github.com/consen/dotfiles/blob/master/tmux/tmux.conf" target="_blank" rel="external">dotfiles/tmux/tmux.conf</a>，Tmux命令前置操作默认为Ctrl+b，我改成了Ctrl+a。</p>
-<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/four-linux-development-tools/tmux.png" alt="tmux"></p>
-<p>常用的几个tmux命令：</p>
-<ul>
-<li>会话（session）</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ tmux new -s session-name          ; 新建会话</span><br><span class="line">$ tmux detach                       ; 断开会话</span><br><span class="line">$ tmux ls                           ; 列出会话</span><br><span class="line">$ tmux attach -t session-name       ; 连接会话，远程连接突然中断，再次连接后，attach到原先的会话，继续之前的操作</span><br></pre></td></tr></table></figure>
-<ul>
-<li>窗口（window）</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Ctrl+a c            ; 新建窗口</span><br><span class="line">Ctrl+a [0-9]        ; 切换窗口</span><br></pre></td></tr></table></figure>
-<ul>
-<li>窗格（pane）</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Ctrl+a -    ; 建立垂直窗格</span><br><span class="line">Ctrl+a |    ; 建立水平窗格</span><br><span class="line">Ctrl+a hjkl ; 切换窗格</span><br><span class="line">Ctrl+a z    ; 最大化窗格</span><br></pre></td></tr></table></figure>
-<h2 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h2><p>现在对代码的管理，已是<a href="https://git-scm.com/" target="_blank" rel="external">Git</a>一统天下，又有<a href="https://github.com" target="_blank" rel="external">GitHub</a>加持，实在是解放了程序员，大大提升开发效率。</p>
-<p>Git的命令很多，但日常用的20%都不到：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ git clone</span><br><span class="line">$ git pull</span><br><span class="line">$ git status</span><br><span class="line">$ git diff</span><br><span class="line">$ git add</span><br><span class="line">$ git commit -m &apos;&apos;</span><br><span class="line">$ git push</span><br><span class="line">$ git log</span><br><span class="line"></span><br><span class="line">$ git branch</span><br><span class="line">$ git checkout</span><br><span class="line">$ git merge</span><br></pre></td></tr></table></figure>
-<h2 id="Zsh"><a href="#Zsh" class="headerlink" title="Zsh"></a>Zsh</h2><p>不推荐直接上手Zsh, 先从Bash玩起，因为你可以在开发环境下自己装个Zsh, 但是产品环境并不一定有Zsh，却一定有Bash。先从Bash开始搞懂Linux Shell的核心思想，比如至少对以下几点比较熟练：</p>
-<ul>
-<li>常用命令</li>
-<li>Bash配置</li>
-<li>常用快捷键</li>
-<li>Bash脚本编写</li>
-</ul>
-<p>之后为了提高shell操作效率，就可以使用<a href="http://www.zsh.org/" target="_blank" rel="external">Zsh</a>了，当然离不开Zsh配置管理框架<a href="http://ohmyz.sh/" target="_blank" rel="external">Oh My Zsh</a>。</p>
-<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/four-linux-development-tools/zsh.png" alt="zsh"></p>
-<p>我的Zsh配置，<a href="https://github.com/consen/dotfiles/blob/master/zsh/zshrc" target="_blank" rel="external">dotfiles/zsh/zshrc</a>。有个扩展鼎力推荐，它使Zsh的使用效率大幅提升，<a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="external">zsh-autosuggestions</a>。</p>
+<h1 id="A-sequential-server"><a href="#A-sequential-server" class="headerlink" title="A sequential server"></a>A sequential server</h1><p>串行服务，一次只能处理一个客户端请求，其他客户端只能等待，所以效率很低，这也促使引入更高效的并发模型。</p>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/sequential-flow.png" alt=""></p>
+<h1 id="Threads"><a href="#Threads" class="headerlink" title="Threads"></a>Threads</h1><p>并发实现的一种方法是多线程，这样服务端可同时处理多个客户端。</p>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/concurrent-flow.png" alt=""></p>
+<p>每一个客户端都新建一个线程，带来的问题是，客户端一多，线程会占用服务器大量内存，而且大量CPU时间用于线程上下文切换，甚至会引发安全问题，资源耗尽造成拒绝服务(DoS)攻击。所以需要对并发的客户端数量进行限制(rate-limiting)，比较流行的设计是线程池(thread pool)。</p>
+<h2 id="Thread-pools"><a href="#Thread-pools" class="headerlink" title="Thread pools"></a>Thread pools</h2><p>线程池思想简单，却功能强大。服务端创建一个有多个线程的线程池，只有线程池中有空闲线程时，才会处理新的客户端请求。在面对高负载时，线程池也是一种优雅降级(graceful degradation)，服务端仍然能以一定速率提供正常服务，而不会资源耗尽停止服务。</p>
+<h1 id="Event-driven"><a href="#Event-driven" class="headerlink" title="Event driven"></a>Event driven</h1><p>多线程并不是并发处理的唯一方式，另外一种常见的并发方法是事件驱动编程(event-driven programming)，即异步编程(asynchronous programming)。</p>
+<h2 id="Blocking-vs-nonblocking-I-O"><a href="#Blocking-vs-nonblocking-I-O" class="headerlink" title="Blocking vs. nonblocking I/O"></a>Blocking vs. nonblocking I/O</h2><p>首先对比下阻塞I/O和非阻塞I/O，阻塞I/O是我们比较熟悉的I/O API工作方式，比如从一个socket接收数据，对recv的调用会阻塞，直到接收到数据。当把socket设置为非阻塞模式，对recv的调用会立即返回，即使没有接收到数据。</p>
+<p>似乎我们可以通过非阻塞I/O来实现并发，同时处理多个客户端，只要轮询(polling)每个socket，检查是否收到了数据。但是在实际应用中，这种解决方案伸缩性较差，比如现在有1000个客户端需要并发处理，单单是遍历所有sockets就要花费很多时间，相当低效。其实操作系统内部是知道哪个socket收到了数据，我们不必扫描所有sockets，直接使用提供的API即可。</p>
+<h2 id="select"><a href="#select" class="headerlink" title="select"></a>select</h2><p>select允许在单线程中监控多个文件描述符，无需不必要的轮询。通过select，实现了I/O复用(I/O multiplexing)，在同一个线程中并发处理多个客户端，一个客户端处理完一些工作后，就切换到另一个客户端接着处理。</p>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/multiplexed-flow.png" alt=""></p>
+<p>然而select有一定的限制，一是可监控的文件描述符数量受限，一般最多为1024，二是性能较差，当select返回时，提供的信息只有可用文件描述的数量，具体是哪些文件描述符可用，还是需要遍历所有监控的文件描述符。因此现代并发服务实现已经很少用select了，转而使用更高效的其他API，如epoll。</p>
+<h2 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h2><p>epoll的高效之处在于直接返回所有可用的文件描述符，不必再去遍历所有文件描述符，这样就将找到可用文件描述符的时间复杂度从O(N)降到了O(1)。</p>
+<h1 id="libuv"><a href="#libuv" class="headerlink" title="libuv"></a>libuv</h1><p>直接基于select或epoll实现并发服务，跨平台能力较差，<a href="http://libuv.org/" target="_blank" rel="external">libuv</a>做了一层抽象，提供高性能异步IO编程模型。</p>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/libuv-architecture.png" alt=""></p>
+<p>libuv的核心是事件循环(evevt loop)，用户只需要注册事件处理例程(event handlers)，即回掉函数(callback functions)，然后运行循环(loop)。</p>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/libuv-loop_iteration.png" alt=""></p>
+<p>基于libuv实现的事件驱动(event-driven)服务，在单线程中并发处理所有客户端，服务逻辑通过一系列的回掉函数实现，如果回掉函数的操作需要花费大量时间，会阻塞整个事件循环(event loop)，所以长时间运行的回掉函数是一大禁忌。</p>
+<p>但是有些回掉操作确实需要花费大量时间，就需要将阻塞调用(blocking calls)转换成异步调用(asynchronous calls)，即利用线程池，libuv提供了相应的机制。</p>
+<h1 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h1><p>最后作者以Redis为例，分析了其并发实现。Redis实现了自己的事件驱动库(event-driven library)，叫<a href="https://redis.io/topics/internals-rediseventlib" target="_blank" rel="external">ae</a>，既然有现成的libuv，为什么还要自己实现ae呢？Redis作者回答说，ae只有区区1K行左右的代码，专门为Redis设计，和Redis协同发展，只包含Redis需要的功能，而libuv有26K的代码，庞大又复杂，包含了很多Redis不需要的功能。这也为软件项目中的依赖处理提供了借鉴。</p>
 
       
     </div>
@@ -428,13 +398,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Vim/" rel="tag"># Vim</a>
-          
-            <a href="/tags/Tmux/" rel="tag"># Tmux</a>
-          
-            <a href="/tags/Git/" rel="tag"># Git</a>
-          
-            <a href="/tags/Zsh/" rel="tag"># Zsh</a>
+            <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
           
         </div>
       
@@ -447,8 +411,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/07/hide-data-inside-pointers/" rel="next" title="在指针中隐藏数据">
-                <i class="fa fa-chevron-left"></i> 在指针中隐藏数据
+              <a href="/2017/11/28/qemu-nbd-segfault/" rel="next" title="segfault段错误问题修复">
+                <i class="fa fa-chevron-left"></i> segfault段错误问题修复
               </a>
             
           </div>
@@ -456,10 +420,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/11/28/qemu-nbd-segfault/" rel="prev" title="segfault段错误问题修复">
-                segfault段错误问题修复 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -631,7 +591,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Vim"><span class="nav-text">Vim</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tmux"><span class="nav-text">Tmux</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Git"><span class="nav-text">Git</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Zsh"><span class="nav-text">Zsh</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#A-sequential-server"><span class="nav-text">A sequential server</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Threads"><span class="nav-text">Threads</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Thread-pools"><span class="nav-text">Thread pools</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Event-driven"><span class="nav-text">Event driven</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Blocking-vs-nonblocking-I-O"><span class="nav-text">Blocking vs. nonblocking I/O</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#select"><span class="nav-text">select</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epoll"><span class="nav-text">epoll</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#libuv"><span class="nav-text">libuv</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis"><span class="nav-text">Redis</span></a></li></ol></div>
             
 
           </div>
