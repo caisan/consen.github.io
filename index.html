@@ -266,6 +266,159 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2017/12/23/kvm-run-macos/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Consen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Consen">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/23/kvm-run-macos/" itemprop="url">KVM运行macOS</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-23T20:08:22+00:00">
+                2017-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Virtualization/" itemprop="url" rel="index">
+                    <span itemprop="name">Virtualization</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>最近尝试基于Xen运行macOS操作系统，之前已经有人做过类似的研究：</p>
+<ul>
+<li><a href="http://wiki.osx86project.org/wiki/index.php/Snow_Leopard_Server_on_Xen" target="_blank" rel="external">Snow Leopard Server on Xen</a></li>
+<li><a href="https://www.bisente.com/2011/03/15/macos-xen-snow-leopard-as-guest-on-a-xen-domu/" target="_blank" rel="external">MACOS XEN: SNOW LEOPARD AS GUEST ON A XEN DOMU</a></li>
+<li><a href="https://groups.google.com/forum/#!msg/qubes-users/RiVntUzgJmY/rXMtXD3WKQAJ" target="_blank" rel="external">Qubes 3 MacOSX</a></li>
+</ul>
+<p>虽然可正常运行，但缺少后续研究，也没有官方支持，所以目前为止Xen只能勉强运行老版本OSX操作系统。运行OSX系统，需要对Xen hypervisor进行修改，如支持MSR 0x35，OSX系统启动时需要据此确定CPU核心数和线程数，但是这个特性连Intel官方开发文档都没有明确说明，所以Xen官方拒绝将此修改合并到Xen主分支代码。</p>
+<ul>
+<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02524.html" target="_blank" rel="external">Xen-devel PATCH x86/hvm: add support for MSR 0x35</a></li>
+<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02525.html" target="_blank" rel="external">Xen-devel PATCH x86/traps: hypervisor leaf 0x40000010 timing info</a></li>
+</ul>
+<p>自己在本地修改Xen源码，虽然可安装、启动OSX-10.10系统，但还是遇到了其他问题，如外设模拟、系统驱动等，所以系统还是没法正常使用，只好作罢，转而投向更加活跃、有社区支持的<a href="https://github.com/kholia/OSX-KVM" target="_blank" rel="external">OSX-KVM</a>项目，基于KVM运行macOS系统。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/12/23/kvm-run-macos/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://consen.github.io/2017/12/13/concurrent-servers/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1540,154 +1693,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2016/09/20/a-network-timeout-bug/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Consen">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Consen">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/09/20/a-network-timeout-bug/" itemprop="url">网络连接为什么超时了</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-20T21:34:21+00:00">
-                2016-09-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Network/" itemprop="url" rel="index">
-                    <span itemprop="name">Network</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在cuckoo上测试我的xenforce，任务运行结果出现大量timeout错误，虽然以前也遇到过这个问题，但没当回事放过去了，现在有了xenforce还出现这种问题，是可忍孰不可忍，今天就认真排查下这个问题，消灭这只bug。</p>
-<p>Bug现象是这样的，任务运行超时，错误日志有两种：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/09/20/a-network-timeout-bug/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1736,7 +1746,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1758,7 +1768,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-count">32</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
