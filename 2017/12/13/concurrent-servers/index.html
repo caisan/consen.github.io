@@ -103,23 +103,23 @@
 
 
 
-<meta name="description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发">
+<meta name="description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，作者由简单到复杂，由串行到并行，由多线程到事件驱动，再到第三方库对并发的实现，梳理了并发服务相关思想，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有">
 <meta name="keywords" content="Concurrency">
 <meta property="og:type" content="article">
 <meta property="og:title" content="并发服务实现">
 <meta property="og:url" content="https://consen.github.io/2017/12/13/concurrent-servers/index.html">
 <meta property="og:site_name" content="Consen">
-<meta property="og:description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发">
+<meta property="og:description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，作者由简单到复杂，由串行到并行，由多线程到事件驱动，再到第三方库对并发的实现，梳理了并发服务相关思想，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/sequential-flow.png">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/concurrent-flow.png">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/multiplexed-flow.png">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/libuv-architecture.png">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/libuv-loop_iteration.png">
-<meta property="og:updated_time" content="2017-12-14T11:25:21.175Z">
+<meta property="og:updated_time" content="2017-12-25T09:41:12.157Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并发服务实现">
-<meta name="twitter:description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发">
+<meta name="twitter:description" content="最近拜读了Eli Bendersky写的Concurrent Servers系列博客，作者由简单到复杂，由串行到并行，由多线程到事件驱动，再到第三方库对并发的实现，梳理了并发服务相关思想，在此对相关重点做一总结。 作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有">
 <meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/concurrent-servers/sequential-flow.png">
 
 
@@ -358,7 +358,7 @@
       
 
       
-        <p>最近拜读了Eli Bendersky写的<a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/" target="_blank" rel="external">Concurrent Servers</a>系列博客，学到了很多，明确了跟并发相关的概念，以及并发的应用场景，在此对相关重点做一总结。</p>
+        <p>最近拜读了Eli Bendersky写的<a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/" target="_blank" rel="external">Concurrent Servers</a>系列博客，作者由简单到复杂，由串行到并行，由多线程到事件驱动，再到第三方库对并发的实现，梳理了并发服务相关思想，在此对相关重点做一总结。</p>
 <p>作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发送的数据更改状态，并根据状态产生不同行为。</p>
 <a id="more"></a>
 <h1 id="A-sequential-server"><a href="#A-sequential-server" class="headerlink" title="A sequential server"></a>A sequential server</h1><p>串行服务，一次只能处理一个客户端请求，其他客户端只能等待，所以效率很低，这也促使引入更高效的并发模型。(我之前的一篇博客<a href="https://consen.github.io/2016/09/20/a-network-timeout-bug/">网络连接为什么超时了</a>就跟串行服务有关)</p>
