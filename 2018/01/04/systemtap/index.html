@@ -103,20 +103,20 @@
 
 
 
-<meta name="description" content="SystemTap是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。 SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，运行指">
+<meta name="description" content="SystemTap是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。 SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，">
 <meta name="keywords" content="SystemTap">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SystemTap">
 <meta property="og:url" content="https://consen.github.io/2018/01/04/systemtap/index.html">
 <meta property="og:site_name" content="Consen">
-<meta property="og:description" content="SystemTap是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。 SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，运行指">
+<meta property="og:description" content="SystemTap是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。 SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/systemtap/systemtap-arch.png">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/systemtap/systemtap-flow.png">
-<meta property="og:updated_time" content="2018-01-04T21:16:39.521Z">
+<meta property="og:updated_time" content="2018-01-05T09:48:15.424Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SystemTap">
-<meta name="twitter:description" content="SystemTap是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。 SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，运行指">
+<meta name="twitter:description" content="SystemTap是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。 SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，">
 <meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/systemtap/systemtap-arch.png">
 
 
@@ -355,7 +355,7 @@
       
 
       
-        <p><a href="https://sourceware.org/systemtap/wiki" target="_blank" rel="external">SystemTap</a>是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。</p>
+        <p><a href="https://sourceware.org/systemtap/wiki" target="_blank" rel="external">SystemTap</a>是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。</p>
 <p>SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，运行指定处理例程（handler）。</p>
 <a id="more"></a>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>SystemTap基于<a href="https://www.kernel.org/doc/Documentation/kprobes.txt" target="_blank" rel="external">Kprobes</a>实现，Kprobes允许在内核代码任意地址设置断点，当断点触发时，运行指定的处理例程。Kprobes有两种探测类型：kprobes和kretprobes，kprobes可以探测内核任意指令，kretprobes探测函数返回。当注册一个kprobe时，会拷贝一份探测指令，然后将指令的第一个字节替换成断点指令（如int3），断点触发时运行指定处理函数，然后运行原始指令。当注册一个kretprobe，会在探测函数入口点注册一个常规的kprobe，当函数调用时，会获取返回地址，然后将返回地址替换成一个跳转地址（trampoline address），当函数返回时，运行跳转地址，此时处理函数执行，然后再运行原始返回地址。</p>
