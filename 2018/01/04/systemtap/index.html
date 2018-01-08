@@ -113,7 +113,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/systemtap/systemtap-arch.png">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/systemtap/systemtap-flow.png">
-<meta property="og:updated_time" content="2018-01-05T09:48:15.424Z">
+<meta property="og:updated_time" content="2018-01-08T21:39:36.476Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SystemTap">
 <meta name="twitter:description" content="SystemTap是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。 SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，">
@@ -398,6 +398,7 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo stap -v -m sshd_profile.ko -p4 sshd_profile.stp</span><br></pre></td></tr></table></figure>
 <p><code>staprun</code>运行编译好的模块：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo staprun sshd_profile.ko</span><br></pre></td></tr></table></figure>
+<p>SystemTap在沙箱中的应用参见下一篇博客<a href="https://consen.github.io/2018/01/05/cuckoo-sandbox-linux-analyzer/">Cuckoo沙箱Linux检测引擎</a></p>
 <p>参考：</p>
 <ul>
 <li><a href="https://sourceware.org/systemtap/tutorial.pdf" target="_blank" rel="external">Systemtap tutorial</a></li>
