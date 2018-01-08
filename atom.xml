@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://consen.github.io/"/>
-  <updated>2018-01-05T09:48:15.424Z</updated>
+  <updated>2018-01-08T21:29:52.953Z</updated>
   <id>https://consen.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Cuckoo沙箱Linux检测引擎</title>
+    <link href="https://consen.github.io/2018/01/05/cuckoo-sandbox-linux-analyzer/"/>
+    <id>https://consen.github.io/2018/01/05/cuckoo-sandbox-linux-analyzer/</id>
+    <published>2018-01-05T16:43:38.000Z</published>
+    <updated>2018-01-08T21:29:52.953Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://cuckoosandbox.org/" target="_blank" rel="external">Cuckoo</a>沙箱是一款开源自动化恶意软件分析系统，将可疑文件或URL在隔离环境中运行，生成详细的行为报告。</p><p>Cuckoo支持在Windows、macOS、Linux、Android四种操作系统平台下分析恶意文件（包括可执行文件、Office文档、PDF文档、邮件等多种类型）和恶意网站。相较于静态分析，沙箱动态分析可获得可疑文件的详细行为信息，如可疑文件创建的进程、调用的函数、创建删除或下载的文件、请求的网络流量等，进而对可疑文件进行深度判定。</p><a id="more"></a><p>Cuckoo的整体运行流程为：提交样本-&gt;启动虚拟机-&gt;往虚拟机投递样本和检测引擎并运行-&gt;回传检测结果-&gt;Processing模块处理结果-&gt;Signatures模块过规则-&gt;Reporting模块生成报告。</p><p>沙箱核心组件之一是动态检测引擎，Cuckoo沙箱Linux检测引擎基于SystemTap实现，关于SystemTap可以参见上一篇博客<a href="https://consen.github.io/2018/01/04/systemtap/">SystemTap</a>，SystemTap在Linux Guest虚拟机中的安装参见<a href="https://cuckoo.sh/docs/installation/guest/linux.html" target="_blank" rel="external">Installing the Linux guest</a>。</p><p>首先打补丁<a href="https://github.com/cuckoosandbox/cuckoo/blob/master/stuff/systemtap/escape_delimiters.patch" target="_blank" rel="external">escape_delimiters</a>，将字符串中的特殊字符转换成十六进制表示，方便后续日志分析:</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo patch /usr/share/systemtap/tapset/uconversions.stp &lt; escape_delimiters.patch</span><br></pre></td></tr></table></figure><p>然后将监控脚本<a href="https://github.com/cuckoosandbox/cuckoo/blob/master/stuff/systemtap/strace.stp" target="_blank" rel="external">strace.stp</a>转换成内核模块：</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo stap -p4 -r $(uname -r) strace.stp -m stap_ -v</span><br></pre></td></tr></table></figure><p>检测引擎运行时，<a href="https://github.com/cuckoosandbox/cuckoo/blob/master/cuckoo/data/analyzer/linux/modules/auxiliary/stap.py" target="_blank" rel="external">stap.py</a>直接运行生成的内核模块，监控样本进程：</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">self.proc = subprocess.Popen([</span><br><span class="line">    &quot;staprun&quot;, &quot;-vv&quot;,</span><br><span class="line">    &quot;-x&quot;, str(os.getpid()),</span><br><span class="line">    &quot;-o&quot;, &quot;stap.log&quot;,</span><br><span class="line">    path,</span><br><span class="line">], stderr=subprocess.PIPE)</span><br></pre></td></tr></table></figure><p>这里<code>path</code>即<code>stap_.ko</code>内核模块;<code>-x</code>指定target进程ID，可在SystemTap脚本通过target()获取。</p><p>生成的日志<code>stap.log</code>会回传到主机，由<a href="https://github.com/cuckoosandbox/cuckoo/blob/master/cuckoo/processing/platform/linux.py" target="_blank" rel="external">processing</a>模块分析，最终由reporting模块生成报告。</p><p>由监控脚本<a href="https://github.com/cuckoosandbox/cuckoo/blob/master/stuff/systemtap/strace.stp" target="_blank" rel="external">strace.stp</a>可见（引用的tapsets函数可参见<a href="https://sourceware.org/systemtap/tapsets/" target="_blank" rel="external">SystemTap Tapset Reference Manual</a>），引擎会监控样本进程及其子进程的所有系统调用并生成日志：</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">probe nd_syscall.* &#123;</span><br><span class="line">    if (pid() == target()) next         # skip our own helper process</span><br><span class="line">    if (!target_set_pid(pid())) next    # skip unrelated processes</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function report(syscall_name, syscall_argstr, syscall_retstr) &#123;</span><br><span class="line">    ...</span><br><span class="line">    if (syscall_retstr == &quot;&quot;)</span><br><span class="line">        printf(&quot;%s%s(%s)\n&quot;, prefix, syscall_name, syscall_argstr)</span><br><span class="line">    else</span><br><span class="line">        printf(&quot;%s%s(%s) = %s\n&quot;, prefix, syscall_name, syscall_argstr, syscall_retstr)</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>生成的日志可参见测试样例<a href="https://github.com/cuckoosandbox/cuckoo/blob/master/tests/files/log.stap" target="_blank" rel="external">log.stap</a>：</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Mon Jun 19 16:58:31 2017.445170 python@b774dcf9[680] execve(&quot;/usr/bin/sh&quot;, [&quot;sh&quot;, &quot;-c&quot;, &quot;/tmp/helloworld.sh&quot;], [&quot;LANGUAGE=en_US:en&quot;, &quot;HOME=/root&quot;, &quot;LOGNAME=root&quot;, &quot;PATH=/usr/bin:/bin&quot;, &quot;LANG=en_US.UTF-8&quot;, &quot;SHELL=/bin/sh&quot;, &quot;PWD=/root&quot;]) = -2 (ENOENT)</span><br><span class="line">Mon Jun 19 16:58:31 2017.517266 sh@b77825f7[680] brk(0x0) = -2118402048</span><br><span class="line">Mon Jun 19 16:58:31 2017.521264 sh@b77838c1[680] access(&quot;/etc/ld.so.nohwcap&quot;, F_OK) = -2 (ENOENT)</span><br></pre></td></tr></table></figure><p>对日志的解析参见测试脚本<a href="https://github.com/cuckoosandbox/cuckoo/blob/master/tests/test_stap.py" target="_blank" rel="external">test_stap.py</a>。</p><p>投递样本helloworld.sh进行分析：</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">!/bin/bash               </span><br><span class="line">echo &quot;hello world!&quot;       </span><br><span class="line">cat /etc/passwd           </span><br><span class="line">ping -c 4 www.360.com</span><br></pre></td></tr></table></figure><p>生成的行为分析进程树：</p><p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/cuckoo-sandbox-linux-analyzer/linux-analyzer1.png" alt=""></p><p>部分系统调用信息：</p><p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/cuckoo-sandbox-linux-analyzer/linux-analyzer2.png" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://cuckoosandbox.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Cuckoo&lt;/a&gt;沙箱是一款开源自动化恶意软件分析系统，将可疑文件或URL在隔离环境中运行，生成详细的行为报告。&lt;/p&gt;
+&lt;p&gt;Cuckoo支持在Windows、macOS、Linux、Android四种操作系统平台下分析恶意文件（包括可执行文件、Office文档、PDF文档、邮件等多种类型）和恶意网站。相较于静态分析，沙箱动态分析可获得可疑文件的详细行为信息，如可疑文件创建的进程、调用的函数、创建删除或下载的文件、请求的网络流量等，进而对可疑文件进行深度判定。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Security" scheme="https://consen.github.io/categories/Security/"/>
+    
+    
+      <category term="SystemTap" scheme="https://consen.github.io/tags/SystemTap/"/>
+    
+      <category term="Cuckoo" scheme="https://consen.github.io/tags/Cuckoo/"/>
+    
+      <category term="Sandbox" scheme="https://consen.github.io/tags/Sandbox/"/>
+    
+  </entry>
   
   <entry>
     <title>SystemTap</title>
@@ -496,30 +523,6 @@
     
     
       <category term="HHKB" scheme="https://consen.github.io/tags/HHKB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>C++面试我一定会问的一个问题</title>
-    <link href="https://consen.github.io/2016/05/21/a-question-i-will-ask-in-cpp-interview/"/>
-    <id>https://consen.github.io/2016/05/21/a-question-i-will-ask-in-cpp-interview/</id>
-    <published>2016-05-21T20:10:36.000Z</published>
-    <updated>2017-11-15T13:13:01.976Z</updated>
-    
-    <content type="html"><![CDATA[<p>C++是一门难学易用的语言，如果没有深刻理解一些基本概念，编写的代码就会经常出现一些奇怪的问题。</p><p>下面这个问题就是我当初学习C++ OOP概念时遇到的，也是我在工作中遇到的，这个问题没有复杂的技巧，也不是“茴香豆的茴有几种写法”之类的死板教条，只要你基础扎实，一定能回答出来。</p><p>问题很简单，我们都知道，C++中基类指针可以指向派生类对象，那么下面的代码是否正确？</p><a id="more"></a><figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line"></span><br><span class="line">    Base(<span class="keyword">int</span> a): a(a) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Derived(<span class="keyword">int</span> a): Base(a) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Print</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">"a: "</span> &lt;&lt; a &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="function">Derived <span class="title">d</span><span class="params">(<span class="number">100</span>)</span></span>;</span><br><span class="line">   Base* pb;</span><br><span class="line">   pb = &amp;d;</span><br><span class="line">   pb-&gt;Print();</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>有啥想法了吗？</p><p>如果没有，编译时会输出下面信息，能看出什么端倪了吗？</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ g++ test.cpp -o test</span><br><span class="line">test.cpp: In function ‘int main()’:</span><br><span class="line">test.cpp:27: error: ‘class Base’ has no member named ‘Print’</span><br></pre></td></tr></table></figure><p>提示错误：基类‘Base’没有成员的名字是‘Print’，我们预想通过基类指针去调用派生类的函数成员。</p><blockquote><p>“如果调用非虚函数，则无论实际对象是什么类型，都执行基类类型所定义的函数。”</p><p>–《C++ Primer》第四版中文版480页</p></blockquote><p>没错，如果要想通过基类指针调用派生类的函数成员，得将函数定义成虚函数，像下面这样：</p><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line"></span><br><span class="line">    Base(<span class="keyword">int</span> a): a(a) &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~Base() &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Print</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span>:</span> <span class="keyword">public</span> Base</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Derived(<span class="keyword">int</span> a): Base(a) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">Print</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">"a: "</span> &lt;&lt; a &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="function">Derived <span class="title">d</span><span class="params">(<span class="number">100</span>)</span></span>;</span><br><span class="line">   Base* pb;</span><br><span class="line">   pb = &amp;d;</span><br><span class="line">   pb-&gt;Print();</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ g++ test.cpp -o test</span><br><span class="line">$ ./test </span><br><span class="line">a: 100</span><br></pre></td></tr></table></figure><p>这里涉及到C++ OOP的多态概念，希望你通过此问题对C++多态有更深入的理解，如果有兴趣，还可以再研究下C++多态是怎么实现的，什么是虚函数表，相信你会有大彻大悟的感觉。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;C++是一门难学易用的语言，如果没有深刻理解一些基本概念，编写的代码就会经常出现一些奇怪的问题。&lt;/p&gt;
-&lt;p&gt;下面这个问题就是我当初学习C++ OOP概念时遇到的，也是我在工作中遇到的，这个问题没有复杂的技巧，也不是“茴香豆的茴有几种写法”之类的死板教条，只要你基础扎实，一定能回答出来。&lt;/p&gt;
-&lt;p&gt;问题很简单，我们都知道，C++中基类指针可以指向派生类对象，那么下面的代码是否正确？&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="C++" scheme="https://consen.github.io/categories/C/"/>
-    
-    
-      <category term="OOP" scheme="https://consen.github.io/tags/OOP/"/>
     
   </entry>
   
