@@ -354,12 +354,12 @@
       
 
       
-        <p>Xen官方上周发布了Xen 4.8, <a href="https://blog.xenproject.org/2016/12/07/whats-new-with-xen-project-hypervisor-4-8/" target="_blank" rel="external">What’s New with Xen Project Hypervisor 4.8?</a>，添加了很多新功能，如<a href="https://wiki.xenproject.org/wiki/Credit2_Scheduler_Development" target="_blank" rel="external">Credit2</a>调度器正式发布。Xenforce目前使用的是Xen 4.5，从性能、稳定性、功能等几方面考虑，决定升级到Xen 4.8。</p>
+        <p>Xen官方上周发布了Xen 4.8, <a href="https://blog.xenproject.org/2016/12/07/whats-new-with-xen-project-hypervisor-4-8/" target="_blank" rel="noopener">What’s New with Xen Project Hypervisor 4.8?</a>，添加了很多新功能，如<a href="https://wiki.xenproject.org/wiki/Credit2_Scheduler_Development" target="_blank" rel="noopener">Credit2</a>调度器正式发布。Xenforce目前使用的是Xen 4.5，从性能、稳定性、功能等几方面考虑，决定升级到Xen 4.8。</p>
 <a id="more"></a>
 <p>虽然Xenforce在设计实现之初就考虑到向前兼容Xen，以方便升级Xen，但实际升级到Xen 4.8时还是遇到了一些问题，不过都很好地解决了。升级完后，简单测试了下，设备CPU24核、内存64G、机械硬盘、快照1G，通过快照恢复一台虚拟机只需要3秒左右，而在Xen 4.5上需要6秒左右，Xenforce性能大幅提升，沙箱整体性能也得到提升。如果继续使用Xen 4.5，要提升性能就不得不升级硬件，如CPU 32核或快照存放在固态硬盘。升级到Xen 4.8，解决了快照加载的性能瓶颈，省去了硬件升级开销。</p>
 <p>升级流程：</p>
 <ul>
-<li>下载源码包 <a href="https://xenproject.org/downloads/xen-archives/xen-project-48-series/xen-project-480.html" target="_blank" rel="external">Xen Project 4.8.0</a>。</li>
+<li>下载源码包 <a href="https://xenproject.org/downloads/xen-archives/xen-project-48-series/xen-project-480.html" target="_blank" rel="noopener">Xen Project 4.8.0</a>。</li>
 <li>按照README中的说明，安装依赖包，编译出错基本都是因为依赖包安装有问题。</li>
 <li>配置，编译。</li>
 </ul>
@@ -368,21 +368,21 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ ls dist </span><br><span class="line">COPYING  install  install.sh  README</span><br></pre></td></tr></table></figure>
 <ul>
 <li>安装，运行dist/install.sh脚本，如果安装在<code>/usr/local</code>目录下，运行<code>ldconfig /usr/local/lib</code>命令加载动态链接库。</li>
-<li>配置开机启动项，因为是从Xen 4.5升级过来的，直接沿用之前的<code>grub</code>配置即可，当然，如果想使用<code>Credit2</code>调度器，得在grub配置中添加<code>sched=credit2</code>，详见<a href="http://xenbits.xen.org/docs/unstable/misc/xen-command-line.html" target="_blank" rel="external">Xen Hypervisor Command Line Options</a></li>
+<li>配置开机启动项，因为是从Xen 4.5升级过来的，直接沿用之前的<code>grub</code>配置即可，当然，如果想使用<code>Credit2</code>调度器，得在grub配置中添加<code>sched=credit2</code>，详见<a href="http://xenbits.xen.org/docs/unstable/misc/xen-command-line.html" target="_blank" rel="noopener">Xen Hypervisor Command Line Options</a></li>
 <li>重启设备。重启完成后，运行<code>xl info</code>命令，查看Xen版本。</li>
 </ul>
 <p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/upgrade-xen45-to-xen48/xen4.8.png" alt="xen48"></p>
-<p>因为之前Xenforce是在Xen 4.5上制作的虚拟机快照，升级到Xen 4.8后，快照恢复出错。Xen从4.6版本开始，快照采用了新的格式<a href="https://xenbits.xen.org/docs/unstable/features/migration.html" target="_blank" rel="external">Migration V2</a>，当然，官方也提供了工具<code>convert-legacy-stream</code>将老版快照升级到新版。</p>
+<p>因为之前Xenforce是在Xen 4.5上制作的虚拟机快照，升级到Xen 4.8后，快照恢复出错。Xen从4.6版本开始，快照采用了新的格式<a href="https://xenbits.xen.org/docs/unstable/features/migration.html" target="_blank" rel="noopener">Migration V2</a>，当然，官方也提供了工具<code>convert-legacy-stream</code>将老版快照升级到新版。</p>
 <p>先安装依赖，进入Xen 4.8源码的<code>tools/python</code>目录，运行命令<code>python setup.py install</code>。可运行<code>convert-legacy-stream -h</code>查看使用说明。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">convert-legacy-stream -i vm.checkpoint.45 -o vm.checkpoint -w 64 -g hvm -f libxl -x -v</span><br></pre></td></tr></table></figure>
-<p>遗憾的是转换后快照依然恢复出错，问题出在显卡上。不得不仔细研究了下Migration V2格式，参见<a href="https://xenbits.xen.org/docs/unstable/specs/libxc-migration-stream.html" target="_blank" rel="external">LibXenCtrl Domain Image Format</a>和<a href="https://xenbits.xen.org/docs/unstable/specs/libxl-migration-stream.html" target="_blank" rel="external">LibXenLight Domain Image Format</a>，最终用了一个小trick将问题解决，避免了对Xenforce做大幅改动。想起了传说中当年TK教主将一个损坏的压缩包，一个字节一个字节修复。当然，要从根本上解决此问题，还需把Xen对qemu的使用，以及快照中qemu状态保存的内容及格式，做更深入探究。</p>
+<p>遗憾的是转换后快照依然恢复出错，问题出在显卡上。不得不仔细研究了下Migration V2格式，参见<a href="https://xenbits.xen.org/docs/unstable/specs/libxc-migration-stream.html" target="_blank" rel="noopener">LibXenCtrl Domain Image Format</a>和<a href="https://xenbits.xen.org/docs/unstable/specs/libxl-migration-stream.html" target="_blank" rel="noopener">LibXenLight Domain Image Format</a>，最终用了一个小trick将问题解决，避免了对Xenforce做大幅改动。想起了传说中当年TK教主将一个损坏的压缩包，一个字节一个字节修复。当然，要从根本上解决此问题，还需把Xen对qemu的使用，以及快照中qemu状态保存的内容及格式，做更深入探究。</p>
 <p>自此，Xen从4.5升级到4.8，Xenforce也无缝升级，平滑过渡。</p>
 <hr>
 <p>参考：</p>
 <ul>
-<li><a href="https://blog.xenproject.org/2016/12/07/whats-new-with-xen-project-hypervisor-4-8/" target="_blank" rel="external">What’s New with Xen Project Hypervisor 4.8?</a></li>
-<li><a href="https://xenbits.xen.org/docs/unstable/specs/libxc-migration-stream.html" target="_blank" rel="external">LibXenCtrl Domain Image Format</a></li>
-<li><a href="https://xenbits.xen.org/docs/unstable/specs/libxl-migration-stream.html" target="_blank" rel="external">LibXenLight Domain Image Format</a></li>
+<li><a href="https://blog.xenproject.org/2016/12/07/whats-new-with-xen-project-hypervisor-4-8/" target="_blank" rel="noopener">What’s New with Xen Project Hypervisor 4.8?</a></li>
+<li><a href="https://xenbits.xen.org/docs/unstable/specs/libxc-migration-stream.html" target="_blank" rel="noopener">LibXenCtrl Domain Image Format</a></li>
+<li><a href="https://xenbits.xen.org/docs/unstable/specs/libxl-migration-stream.html" target="_blank" rel="noopener">LibXenLight Domain Image Format</a></li>
 </ul>
 
       

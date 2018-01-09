@@ -355,10 +355,10 @@
       
 
       
-        <p><a href="https://sourceware.org/systemtap/wiki" target="_blank" rel="external">SystemTap</a>是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。</p>
+        <p><a href="https://sourceware.org/systemtap/wiki" target="_blank" rel="noopener">SystemTap</a>是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。</p>
 <p>SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，运行指定处理例程（handler）。</p>
 <a id="more"></a>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>SystemTap基于<a href="https://www.kernel.org/doc/Documentation/kprobes.txt" target="_blank" rel="external">Kprobes</a>实现，Kprobes允许在内核代码任意地址设置断点，当断点触发时，运行指定的处理例程。Kprobes有两种探测类型：kprobes和kretprobes，kprobes可以探测内核任意指令，kretprobes探测函数返回。当注册一个kprobe时，会拷贝一份探测指令，然后将指令的第一个字节替换成断点指令（如int3），断点触发时运行指定处理函数，然后运行原始指令。当注册一个kretprobe，会在探测函数入口点注册一个常规的kprobe，当函数调用时，会获取返回地址，然后将返回地址替换成一个跳转地址（trampoline address），当函数返回时，运行跳转地址，此时处理函数执行，然后再运行原始返回地址。</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>SystemTap基于<a href="https://www.kernel.org/doc/Documentation/kprobes.txt" target="_blank" rel="noopener">Kprobes</a>实现，Kprobes允许在内核代码任意地址设置断点，当断点触发时，运行指定的处理例程。Kprobes有两种探测类型：kprobes和kretprobes，kprobes可以探测内核任意指令，kretprobes探测函数返回。当注册一个kprobe时，会拷贝一份探测指令，然后将指令的第一个字节替换成断点指令（如int3），断点触发时运行指定处理函数，然后运行原始指令。当注册一个kretprobe，会在探测函数入口点注册一个常规的kprobe，当函数调用时，会获取返回地址，然后将返回地址替换成一个跳转地址（trampoline address），当函数返回时，运行跳转地址，此时处理函数执行，然后再运行原始返回地址。</p>
 <p>SystemTap的运行分以下5个步骤：</p>
 <ol>
 <li>parse，解析脚本，转换成解析树（parse tree），这个阶段还会进行预处理，语法语义检查。</li>
@@ -370,8 +370,8 @@
 <p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/systemtap/systemtap-arch.png" alt="systemtap-arch"></p>
 <p>stap命令完成前4步，第5步由staprun和stapio完成。</p>
 <p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/systemtap/systemtap-flow.png" alt="systemtap-flow"></p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>各Linux发行版如Ubuntu、CentOS等，都提供了SystemTap安装包，直接通过包管理命令安装即可，这里采用<a href="https://sourceware.org/git/?p=systemtap.git;a=blob_plain;f=README;hb=HEAD" target="_blank" rel="external">源码编译</a>方式安装。</p>
-<p>从<a href="https://sourceware.org/systemtap/wiki/SystemTapReleases" target="_blank" rel="external">SystemTap Releases</a>下载最新版源码，编译安装，依赖的第三方工具及开发包直接通过包管理命令安装即可。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>各Linux发行版如Ubuntu、CentOS等，都提供了SystemTap安装包，直接通过包管理命令安装即可，这里采用<a href="https://sourceware.org/git/?p=systemtap.git;a=blob_plain;f=README;hb=HEAD" target="_blank" rel="noopener">源码编译</a>方式安装。</p>
+<p>从<a href="https://sourceware.org/systemtap/wiki/SystemTapReleases" target="_blank" rel="noopener">SystemTap Releases</a>下载最新版源码，编译安装，依赖的第三方工具及开发包直接通过包管理命令安装即可。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd systemtap-3.2</span><br><span class="line">$ ./configure</span><br><span class="line">$ make -j 20</span><br><span class="line">$ sudo make install</span><br></pre></td></tr></table></figure>
 <p>SystemTap借助调试信息来确定内核探测点地址，需要调试版内核，这里重新编译Linux-4.14内核。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd linux-4.14-debuginfo</span><br><span class="line">$ vim Makefile</span><br></pre></td></tr></table></figure>
@@ -401,13 +401,13 @@
 <p>Cuckoo沙箱Linux检测引擎就使用了SystemTap，可以参见下一篇博客<a href="https://consen.github.io/2018/01/05/cuckoo-sandbox-linux-analyzer/">Cuckoo沙箱Linux检测引擎</a>。</p>
 <p>参考：</p>
 <ul>
-<li><a href="https://sourceware.org/systemtap/tutorial.pdf" target="_blank" rel="external">Systemtap tutorial</a></li>
-<li><a href="https://sourceware.org/systemtap/SystemTap_Beginners_Guide.pdf" target="_blank" rel="external">SystemTap Beginners Guide</a></li>
-<li><a href="https://sourceware.org/systemtap/archpaper.pdf" target="_blank" rel="external">Architecture of systemtap: a Linux trace/probe tool</a></li>
-<li><a href="https://sourceware.org/systemtap/langref.pdf" target="_blank" rel="external">SystemTap Language Reference</a></li>
-<li><a href="http://www.redbooks.ibm.com/redpapers/pdfs/redp4469.pdf" target="_blank" rel="external">SystemTap: Instrumenting the Linux Kernel for Analyzing Performance and Functional Problems</a></li>
-<li><a href="https://www.ibm.com/developerworks/library/l-systemtap/index.html" target="_blank" rel="external">Linux introspection and SystemTap</a></li>
-<li><a href="https://www.ibm.com/developerworks/library/l-kprobes/index.html" target="_blank" rel="external">Kernel debugging with Kprobes</a></li>
+<li><a href="https://sourceware.org/systemtap/tutorial.pdf" target="_blank" rel="noopener">Systemtap tutorial</a></li>
+<li><a href="https://sourceware.org/systemtap/SystemTap_Beginners_Guide.pdf" target="_blank" rel="noopener">SystemTap Beginners Guide</a></li>
+<li><a href="https://sourceware.org/systemtap/archpaper.pdf" target="_blank" rel="noopener">Architecture of systemtap: a Linux trace/probe tool</a></li>
+<li><a href="https://sourceware.org/systemtap/langref.pdf" target="_blank" rel="noopener">SystemTap Language Reference</a></li>
+<li><a href="http://www.redbooks.ibm.com/redpapers/pdfs/redp4469.pdf" target="_blank" rel="noopener">SystemTap: Instrumenting the Linux Kernel for Analyzing Performance and Functional Problems</a></li>
+<li><a href="https://www.ibm.com/developerworks/library/l-systemtap/index.html" target="_blank" rel="noopener">Linux introspection and SystemTap</a></li>
+<li><a href="https://www.ibm.com/developerworks/library/l-kprobes/index.html" target="_blank" rel="noopener">Kernel debugging with Kprobes</a></li>
 </ul>
 
       

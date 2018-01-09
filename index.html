@@ -354,7 +354,7 @@
 
       
         
-          <p><a href="https://cuckoosandbox.org/" target="_blank" rel="external">Cuckoo</a>沙箱是一款开源自动化恶意软件分析系统，将可疑文件或URL在隔离环境中运行，生成详细的行为报告。</p>
+          <p><a href="https://cuckoosandbox.org/" target="_blank" rel="noopener">Cuckoo</a>沙箱是一款开源自动化恶意软件分析系统，将可疑文件或URL在隔离环境中运行，生成详细的行为报告。</p>
 <p>Cuckoo支持在Windows、macOS、Linux、Android四种操作系统平台下分析恶意文件（包括可执行文件、Office文档、PDF文档、邮件等多种类型）和恶意网站。相较于静态分析，沙箱动态分析可获得可疑文件的详细行为信息，如可疑文件创建的进程、调用的函数、创建删除或下载的文件、请求的网络流量等，进而对可疑文件进行深度判定。</p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -497,7 +497,7 @@
 
       
         
-          <p><a href="https://sourceware.org/systemtap/wiki" target="_blank" rel="external">SystemTap</a>是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。</p>
+          <p><a href="https://sourceware.org/systemtap/wiki" target="_blank" rel="noopener">SystemTap</a>是一款Linux跟踪探测（trace/probe）工具，可收集Linux运行信息，用于性能诊断和问题排查等。SystemTap不需要每次都对内核修改、编译、安装、重启等繁杂冗余的操作，通过其自定义的脚本语言，即可编写功能丰富强大的探测模块，动态载入内核，对系统进行监控，获取指定信息。</p>
 <p>SystemTap可以监控系统调用、内核函数及其他发生在内核的事件（event），当事件触发时，运行指定处理例程（handler）。</p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -642,16 +642,16 @@
         
           <p>最近尝试基于Xen运行macOS操作系统，之前已经有人做过类似的研究：</p>
 <ul>
-<li><a href="http://wiki.osx86project.org/wiki/index.php/Snow_Leopard_Server_on_Xen" target="_blank" rel="external">Snow Leopard Server on Xen</a></li>
-<li><a href="https://www.bisente.com/2011/03/15/macos-xen-snow-leopard-as-guest-on-a-xen-domu/" target="_blank" rel="external">MACOS XEN: SNOW LEOPARD AS GUEST ON A XEN DOMU</a></li>
-<li><a href="https://groups.google.com/forum/#!msg/qubes-users/RiVntUzgJmY/rXMtXD3WKQAJ" target="_blank" rel="external">Qubes 3 MacOSX</a></li>
+<li><a href="http://wiki.osx86project.org/wiki/index.php/Snow_Leopard_Server_on_Xen" target="_blank" rel="noopener">Snow Leopard Server on Xen</a></li>
+<li><a href="https://www.bisente.com/2011/03/15/macos-xen-snow-leopard-as-guest-on-a-xen-domu/" target="_blank" rel="noopener">MACOS XEN: SNOW LEOPARD AS GUEST ON A XEN DOMU</a></li>
+<li><a href="https://groups.google.com/forum/#!msg/qubes-users/RiVntUzgJmY/rXMtXD3WKQAJ" target="_blank" rel="noopener">Qubes 3 MacOSX</a></li>
 </ul>
 <p>虽然可正常运行，但缺少后续研究，也没有官方支持，所以目前为止Xen只能勉强运行老版本OSX操作系统。运行OSX系统，需要对Xen hypervisor进行修改，如支持MSR 0x35，OSX系统启动时需要据此确定CPU核心数和线程数，但是这个特性连Intel官方开发文档都没有明确说明，所以Xen官方拒绝将此修改合并到Xen主分支代码。</p>
 <ul>
-<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02524.html" target="_blank" rel="external">Xen-devel PATCH x86/hvm: add support for MSR 0x35</a></li>
-<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02525.html" target="_blank" rel="external">Xen-devel PATCH x86/traps: hypervisor leaf 0x40000010 timing info</a></li>
+<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02524.html" target="_blank" rel="noopener">Xen-devel PATCH x86/hvm: add support for MSR 0x35</a></li>
+<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02525.html" target="_blank" rel="noopener">Xen-devel PATCH x86/traps: hypervisor leaf 0x40000010 timing info</a></li>
 </ul>
-<p>自己在本地修改Xen源码，虽然可安装、启动OSX-10.10系统，但还是遇到了其他问题，如外设模拟、系统驱动等，所以系统还是没法正常使用，只好作罢，转而投向更加活跃、有社区支持的<a href="https://github.com/kholia/OSX-KVM" target="_blank" rel="external">OSX-KVM</a>项目，基于KVM运行macOS系统。</p>
+<p>自己在本地修改Xen源码，虽然可安装、启动OSX-10.10系统，但还是遇到了其他问题，如外设模拟、系统驱动等，所以系统还是没法正常使用，只好作罢，转而投向更加活跃、有社区支持的<a href="https://github.com/kholia/OSX-KVM" target="_blank" rel="noopener">OSX-KVM</a>项目，基于KVM运行macOS系统。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/12/23/kvm-run-macos/#more" rel="contents">
@@ -793,7 +793,7 @@
 
       
         
-          <p>最近拜读了Eli Bendersky写的<a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/" target="_blank" rel="external">Concurrent Servers</a>系列博客，作者由简单到复杂，由串行到并行，由多线程到事件驱动，再到第三方库对并发的实现，梳理了并发服务相关思想，在此对相关重点做一总结。</p>
+          <p>最近拜读了Eli Bendersky写的<a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/" target="_blank" rel="noopener">Concurrent Servers</a>系列博客，作者由简单到复杂，由串行到并行，由多线程到事件驱动，再到第三方库对并发的实现，梳理了并发服务相关思想，在此对相关重点做一总结。</p>
 <p>作者写就此文的目的是检验几种流行的并发模型，评判这些模型的伸缩性(scalability)和是否容易实现。作者自定义了一种简单的协议(protocol)，用于服务端与客户端交互，协议是有状态的(stateful)，服务端根据客户端发送的数据更改状态，并根据状态产生不同行为。</p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -1081,9 +1081,9 @@
         
           <p>在使用Xen的过程中，会遇到各种问题，掌握一些常见的调试技巧，对于解决问题能起到事半功倍的效果。网上一些Xen调试相关的资源：</p>
 <ol>
-<li><a href="https://wiki.xenproject.org/wiki/Debugging_Xen" target="_blank" rel="external">Debugging Xen</a></li>
-<li><a href="https://wiki.xenproject.org/wiki/Xen_Serial_Console" target="_blank" rel="external">Xen Serial Console</a></li>
-<li><a href="http://www-archive.xenproject.org/files/xensummit_intel09/xen-debugging.pdf" target="_blank" rel="external">Xen Debugging</a></li>
+<li><a href="https://wiki.xenproject.org/wiki/Debugging_Xen" target="_blank" rel="noopener">Debugging Xen</a></li>
+<li><a href="https://wiki.xenproject.org/wiki/Xen_Serial_Console" target="_blank" rel="noopener">Xen Serial Console</a></li>
+<li><a href="http://www-archive.xenproject.org/files/xensummit_intel09/xen-debugging.pdf" target="_blank" rel="noopener">Xen Debugging</a></li>
 </ol>
 <p>Xen hypervisor的运行信息写到了内存中，可以通过<code>xl dmesg</code>命令显示，并没有写入到日志文件，所以不太方便查看。如果遇到更严重的情况，Xen在启动阶段就出错了，则无法进入Dom0运行<code>xl dmesg</code>命令查看启动信息，只能通过串口查看。</p>
 <p>使用串口调试Xen，需要两台物理机，通过串口线连接，一台运行Xen，另一台通过串口查看输出信息。</p>

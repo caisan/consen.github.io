@@ -360,25 +360,25 @@
       
         <p>最近尝试基于Xen运行macOS操作系统，之前已经有人做过类似的研究：</p>
 <ul>
-<li><a href="http://wiki.osx86project.org/wiki/index.php/Snow_Leopard_Server_on_Xen" target="_blank" rel="external">Snow Leopard Server on Xen</a></li>
-<li><a href="https://www.bisente.com/2011/03/15/macos-xen-snow-leopard-as-guest-on-a-xen-domu/" target="_blank" rel="external">MACOS XEN: SNOW LEOPARD AS GUEST ON A XEN DOMU</a></li>
-<li><a href="https://groups.google.com/forum/#!msg/qubes-users/RiVntUzgJmY/rXMtXD3WKQAJ" target="_blank" rel="external">Qubes 3 MacOSX</a></li>
+<li><a href="http://wiki.osx86project.org/wiki/index.php/Snow_Leopard_Server_on_Xen" target="_blank" rel="noopener">Snow Leopard Server on Xen</a></li>
+<li><a href="https://www.bisente.com/2011/03/15/macos-xen-snow-leopard-as-guest-on-a-xen-domu/" target="_blank" rel="noopener">MACOS XEN: SNOW LEOPARD AS GUEST ON A XEN DOMU</a></li>
+<li><a href="https://groups.google.com/forum/#!msg/qubes-users/RiVntUzgJmY/rXMtXD3WKQAJ" target="_blank" rel="noopener">Qubes 3 MacOSX</a></li>
 </ul>
 <p>虽然可正常运行，但缺少后续研究，也没有官方支持，所以目前为止Xen只能勉强运行老版本OSX操作系统。运行OSX系统，需要对Xen hypervisor进行修改，如支持MSR 0x35，OSX系统启动时需要据此确定CPU核心数和线程数，但是这个特性连Intel官方开发文档都没有明确说明，所以Xen官方拒绝将此修改合并到Xen主分支代码。</p>
 <ul>
-<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02524.html" target="_blank" rel="external">Xen-devel PATCH x86/hvm: add support for MSR 0x35</a></li>
-<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02525.html" target="_blank" rel="external">Xen-devel PATCH x86/traps: hypervisor leaf 0x40000010 timing info</a></li>
+<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02524.html" target="_blank" rel="noopener">Xen-devel PATCH x86/hvm: add support for MSR 0x35</a></li>
+<li><a href="https://lists.xen.org/archives/html/xen-devel/2014-09/msg02525.html" target="_blank" rel="noopener">Xen-devel PATCH x86/traps: hypervisor leaf 0x40000010 timing info</a></li>
 </ul>
-<p>自己在本地修改Xen源码，虽然可安装、启动OSX-10.10系统，但还是遇到了其他问题，如外设模拟、系统驱动等，所以系统还是没法正常使用，只好作罢，转而投向更加活跃、有社区支持的<a href="https://github.com/kholia/OSX-KVM" target="_blank" rel="external">OSX-KVM</a>项目，基于KVM运行macOS系统。</p>
+<p>自己在本地修改Xen源码，虽然可安装、启动OSX-10.10系统，但还是遇到了其他问题，如外设模拟、系统驱动等，所以系统还是没法正常使用，只好作罢，转而投向更加活跃、有社区支持的<a href="https://github.com/kholia/OSX-KVM" target="_blank" rel="noopener">OSX-KVM</a>项目，基于KVM运行macOS系统。</p>
 <a id="more"></a>
 <h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>运行KVM需要CPU支持虚拟化扩展，即Intel VT-x或AMD SVM，如果功能没开启，需要在BISO开启。运行OSX需要KVM和QEMU支持，对KVM和QEMU的修改都已合并到主分支代码，如果系统自带的KVM或QEMU版本太老，OSX是无法正常运行的，至少需要Linux kernel &gt;= 4.7，QEMU &gt;= 2.6。</p>
-<p>在<a href="https://www.kernel.org/" target="_blank" rel="external">The Linux Kernel Archives</a>下载最新稳定版Linux内核编译安装，注意KVM相关虚拟化参数配置。</p>
+<p>在<a href="https://www.kernel.org/" target="_blank" rel="noopener">The Linux Kernel Archives</a>下载最新稳定版Linux内核编译安装，注意KVM相关虚拟化参数配置。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ uname -r</span><br><span class="line">4.14.0</span><br></pre></td></tr></table></figure>
 <p>加载KVM内核模块：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo modprobe kvm_intel</span><br><span class="line">$ lsmod | grep kvm</span><br><span class="line">kvm_intel             192512  0</span><br><span class="line">kvm                   512000  1 kvm_intel</span><br><span class="line">irqbypass              16384  1 kvm</span><br></pre></td></tr></table></figure>
-<p>在<a href="https://www.qemu.org/download/#source" target="_blank" rel="external">Download QEMU</a>下载最新稳定版QEMU编译安装。</p>
+<p>在<a href="https://www.qemu.org/download/#source" target="_blank" rel="noopener">Download QEMU</a>下载最新稳定版QEMU编译安装。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ /usr/local/bin/qemu-system-x86_64 --version                                          </span><br><span class="line">QEMU emulator version 2.11.0                        </span><br><span class="line">Copyright (c) 2003-2017 Fabrice Bellard and the QEMU Project developers</span><br></pre></td></tr></table></figure>
-<h2 id="安装macOS"><a href="#安装macOS" class="headerlink" title="安装macOS"></a>安装macOS</h2><p>接着按照<a href="https://github.com/kholia/OSX-KVM" target="_blank" rel="external">OSX-KVM</a>系统安装文档，安装macOS系统。我直接使用的<code>qemu-system-x86_64</code>，没有借助<code>libvirt</code>。</p>
+<h2 id="安装macOS"><a href="#安装macOS" class="headerlink" title="安装macOS"></a>安装macOS</h2><p>接着按照<a href="https://github.com/kholia/OSX-KVM" target="_blank" rel="noopener">OSX-KVM</a>系统安装文档，安装macOS系统。我直接使用的<code>qemu-system-x86_64</code>，没有借助<code>libvirt</code>。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cat boot-macOS.sh</span><br><span class="line">qemu-system-x86_64 -enable-kvm -m 2048 -cpu Penryn,kvm=off,vendor=GenuineIntel \</span><br><span class="line">      -machine pc-q35-2.4 \</span><br><span class="line">      -smp 2,cores=1 \</span><br><span class="line">      -usb -device usb-kbd -device usb-tablet \</span><br><span class="line">      -device isa-applesmc,osk=&quot;ourhardworkbythesewordsguardedpleasedontsteal(c)AppleComputerInc&quot; \</span><br><span class="line">      -kernel ./enoch_rev2902_boot \</span><br><span class="line">      -smbios type=2 \</span><br><span class="line">      -device ich9-intel-hda -device hda-duplex \</span><br><span class="line">      -device ide-drive,bus=ide.2,drive=MacHDD \</span><br><span class="line">      -drive id=MacHDD,if=none,file=./mac_hdd.img \</span><br><span class="line">      -netdev tap,id=net0,ifname=tap0,script=no,downscript=no -device e1000-82545em,netdev=net0,id=net0,mac=52:54:00:c9:18:27 \</span><br><span class="line">      -monitor stdio \</span><br><span class="line">      -device ide-drive,bus=ide.0,drive=MacDVD \</span><br><span class="line">      -drive id=MacDVD,if=none,snapshot=on,file=./&apos;Install_macOS_Sierra_OS_X_10.12.iso&apos;</span><br><span class="line">      -vnc 0.0.0.0:0 -k en-us</span><br></pre></td></tr></table></figure>
 <p>安装完，将MacDVD -device及ISO -drive配置注释掉，启动虚拟机。</p>
 <p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/kvm-run-macos/macos_10.12.jpg" alt="macos_sierra"></p>
@@ -395,7 +395,7 @@
 <h3 id="虚拟机网卡配置"><a href="#虚拟机网卡配置" class="headerlink" title="虚拟机网卡配置"></a>虚拟机网卡配置</h3><p>将之前虚拟机启动脚本中的网卡配置，改成：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-netdev tap,id=net100,ifname=tap100,script=/etc/qemu-ifup.sh,downscript=no -device e1000-82545em,netdev=net100,id=net100,mac=00:16:3e:eb:ca:65</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-netdev tap,id=net101,ifname=tap101,script=/etc/qemu-ifup.sh,downscript=no -device e1000-82545em,netdev=net101,id=net101,mac=00:16:3e:eb:ca:66</span><br></pre></td></tr></table></figure>
-<p>注意虚拟网卡是e1000-82545em，不是e1000，否则虚拟机网卡无法正常工作。参见<a href="https://wiki.qemu.org/ChangeLog/2.1" target="_blank" rel="external">QEMU 2.1 Changelog</a>：</p>
+<p>注意虚拟网卡是e1000-82545em，不是e1000，否则虚拟机网卡无法正常工作。参见<a href="https://wiki.qemu.org/ChangeLog/2.1" target="_blank" rel="noopener">QEMU 2.1 Changelog</a>：</p>
 <blockquote>
 <p>More variants of the e1000 NIC are supported (e1000-82540em, e1000-82544gc, e1000-82545em). The default e1000 fails with versions of Mac OS X starting at 10.9, while the new e1000-82545em works with all versions of Mac OS X starting at 10.6.</p>
 </blockquote>
@@ -424,15 +424,15 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cat /etc/qemu-ifup.sh </span><br><span class="line">#!/bin/sh</span><br><span class="line"></span><br><span class="line">switch=virbr0</span><br><span class="line"></span><br><span class="line">echo &quot;$0: adding tap interface \&quot;$1\&quot; to bridge \&quot;$switch\&quot;&quot;</span><br><span class="line">ifconfig $1 hw ether fe:ff:ff:ff:ff:ff</span><br><span class="line">ifconfig $1 0.0.0.0 up</span><br><span class="line">brctl addif $&#123;switch&#125; $1</span><br><span class="line"></span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure>
 <p>参考：</p>
 <ul>
-<li><a href="https://qemu.weilnetz.de/doc/qemu-doc.html" target="_blank" rel="external">QEMU User Documentation</a></li>
-<li><a href="http://www.linux-kvm.org/page/Networking" target="_blank" rel="external">QEMU Configuring Guest Networking</a></li>
-<li><a href="https://www.redhat.com/archives/libvirt-users/2015-April/msg00149.html" target="_blank" rel="external">How does the libvirt deal with the vnet mac address</a></li>
-<li><a href="http://backreference.org/2010/07/28/linux-bridge-mac-addresses-and-dynamic-ports/" target="_blank" rel="external">Linux bridge: MAC addresses and dynamic ports</a></li>
-<li><a href="http://www.innervoice.in/blogs/2013/12/08/tap-interfaces-linux-bridge/" target="_blank" rel="external">Tap Interfaces and Linux Bridge</a></li>
-<li><a href="https://goyalankit.com/blog/linux-bridge" target="_blank" rel="external">Linux Bridge - how it works</a></li>
-<li><a href="https://en.wikipedia.org/wiki/TUN/TAP" target="_blank" rel="external">Wikipedia TUN/TAP</a></li>
-<li><a href="https://www.kernel.org/doc/Documentation/networking/tuntap.txt" target="_blank" rel="external">Linux kernel TUN/TAP device driver</a></li>
-<li><a href="http://xmodulo.com/how-to-configure-linux-bridge-interface.html" target="_blank" rel="external">How to configure a Linux bridge interface</a></li>
+<li><a href="https://qemu.weilnetz.de/doc/qemu-doc.html" target="_blank" rel="noopener">QEMU User Documentation</a></li>
+<li><a href="http://www.linux-kvm.org/page/Networking" target="_blank" rel="noopener">QEMU Configuring Guest Networking</a></li>
+<li><a href="https://www.redhat.com/archives/libvirt-users/2015-April/msg00149.html" target="_blank" rel="noopener">How does the libvirt deal with the vnet mac address</a></li>
+<li><a href="http://backreference.org/2010/07/28/linux-bridge-mac-addresses-and-dynamic-ports/" target="_blank" rel="noopener">Linux bridge: MAC addresses and dynamic ports</a></li>
+<li><a href="http://www.innervoice.in/blogs/2013/12/08/tap-interfaces-linux-bridge/" target="_blank" rel="noopener">Tap Interfaces and Linux Bridge</a></li>
+<li><a href="https://goyalankit.com/blog/linux-bridge" target="_blank" rel="noopener">Linux Bridge - how it works</a></li>
+<li><a href="https://en.wikipedia.org/wiki/TUN/TAP" target="_blank" rel="noopener">Wikipedia TUN/TAP</a></li>
+<li><a href="https://www.kernel.org/doc/Documentation/networking/tuntap.txt" target="_blank" rel="noopener">Linux kernel TUN/TAP device driver</a></li>
+<li><a href="http://xmodulo.com/how-to-configure-linux-bridge-interface.html" target="_blank" rel="noopener">How to configure a Linux bridge interface</a></li>
 </ul>
 
       

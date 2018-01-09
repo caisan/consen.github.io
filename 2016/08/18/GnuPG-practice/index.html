@@ -355,7 +355,7 @@
 
       
         <p>这两天有一个大新闻，和美国国家安全局（NSA）有密切关系的方程式组织（<code>Equation Group</code>）遭到<code>The Shadow Brokers</code>攻击，大量黑客工具被泄露到网上，如果你感兴趣，一定已经下载下来把玩了一番:)。</p>
-<p>将文件解压缩后，会看到文件用了<a href="https://www.gnupg.org/" target="_blank" rel="external">GnuPG</a>工具进行加密，简单了解了下GnuPG怎么用，现在分享出来。</p>
+<p>将文件解压缩后，会看到文件用了<a href="https://www.gnupg.org/" target="_blank" rel="noopener">GnuPG</a>工具进行加密，简单了解了下GnuPG怎么用，现在分享出来。</p>
 <a id="more"></a>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ unzip EQGRP-Auction-Files.zip -d EQGRP-Auction-Files</span><br><span class="line">$ ls EQGRP-Auction-Files</span><br><span class="line">eqgrp-auction-file.tar.xz.gpg</span><br><span class="line">eqgrp-auction-file.tar.xz.gpg.sig</span><br><span class="line">eqgrp-free-file.tar.xz.gpg</span><br><span class="line">eqgrp-free-file.tar.xz.gpg.sig</span><br><span class="line">public.key.asc</span><br><span class="line">sha256sum.txt</span><br><span class="line">sha256sum.txt.sig</span><br></pre></td></tr></table></figure>
 <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>CentOS安装GnuPG：</p>
@@ -406,12 +406,12 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ gpg --verify sha256sum.txt.sig </span><br><span class="line">gpg: Signature made Mon 01 Aug 2016 11:23:02 AM CST using RSA key ID CB5C0C1B</span><br><span class="line">gpg: Good signature from &quot;The Shadow Broker &lt;theshadowbroker@mail.i2p&gt;&quot;</span><br></pre></td></tr></table></figure>
 <p><strong>参考文档：</strong></p>
 <ul>
-<li><a href="http://www.ruanyifeng.com/blog/2013/07/gpg.html" target="_blank" rel="external">GPG入门教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html" target="_blank" rel="external">RSA算法原理（一）</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html" target="_blank" rel="external">RSA算法原理（二）</a></li>
-<li><a href="https://archboy.org/2013/05/15/gnupg-pgp-encrypt-decrypt-file-and-digital-signing-easy-tutorial/" target="_blank" rel="external">使用 GnuPG 实现文件加密和数字签名</a></li>
-<li><a href="http://www.tutonics.com/2012/11/gpg-encryption-guide-part-1.html" target="_blank" rel="external">GPG Encryption Guide</a></li>
-<li><a href="http://thehackernews.com/2016/08/nsa-hacking-tools.html" target="_blank" rel="external">NSA’s Hacking Group Hacked! Bunch of Private Hacking Tools Leaked Online</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/07/gpg.html" target="_blank" rel="noopener">GPG入门教程</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html" target="_blank" rel="noopener">RSA算法原理（一）</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html" target="_blank" rel="noopener">RSA算法原理（二）</a></li>
+<li><a href="https://archboy.org/2013/05/15/gnupg-pgp-encrypt-decrypt-file-and-digital-signing-easy-tutorial/" target="_blank" rel="noopener">使用 GnuPG 实现文件加密和数字签名</a></li>
+<li><a href="http://www.tutonics.com/2012/11/gpg-encryption-guide-part-1.html" target="_blank" rel="noopener">GPG Encryption Guide</a></li>
+<li><a href="http://thehackernews.com/2016/08/nsa-hacking-tools.html" target="_blank" rel="noopener">NSA’s Hacking Group Hacked! Bunch of Private Hacking Tools Leaked Online</a></li>
 </ul>
 
       
