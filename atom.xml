@@ -35,11 +35,11 @@
       <category term="Security" scheme="https://consen.github.io/categories/Security/"/>
     
     
-      <category term="SystemTap" scheme="https://consen.github.io/tags/SystemTap/"/>
-    
       <category term="Cuckoo" scheme="https://consen.github.io/tags/Cuckoo/"/>
     
       <category term="Sandbox" scheme="https://consen.github.io/tags/Sandbox/"/>
+    
+      <category term="SystemTap" scheme="https://consen.github.io/tags/SystemTap/"/>
     
   </entry>
   
