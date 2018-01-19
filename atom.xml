@@ -336,9 +336,9 @@
       <category term="Linux" scheme="https://consen.github.io/categories/Linux/"/>
     
     
-      <category term="Xen" scheme="https://consen.github.io/tags/Xen/"/>
-    
       <category term="kernel" scheme="https://consen.github.io/tags/kernel/"/>
+    
+      <category term="Xen" scheme="https://consen.github.io/tags/Xen/"/>
     
   </entry>
   
