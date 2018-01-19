@@ -112,7 +112,7 @@
 <meta property="og:description" content="排查Linux内核Bug，研究内核机制，除了查看资料阅读源码，还可通过调试器，动态分析内核执行流程。 QEMU模拟器原生支持GDB调试器，这样可以很方便地使用GDB的强大功能对操作系统进行调试，如设置断点；单步执行；查看调用栈、查看寄存器、查看内存、查看变量；修改变量改变执行流程等。">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/debug-linux-kernel-with-qemu-and-gdb/process.jpg">
-<meta property="og:updated_time" content="2018-01-17T20:12:32.487Z">
+<meta property="og:updated_time" content="2018-01-19T17:26:07.949Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用QEMU和GDB调试Linux内核">
 <meta name="twitter:description" content="排查Linux内核Bug，研究内核机制，除了查看资料阅读源码，还可通过调试器，动态分析内核执行流程。 QEMU模拟器原生支持GDB调试器，这样可以很方便地使用GDB的强大功能对操作系统进行调试，如设置断点；单步执行；查看调用栈、查看寄存器、查看内存、查看变量；修改变量改变执行流程等。">
@@ -384,7 +384,7 @@
 <li><code>-nographic</code>取消图形输出窗口，使QEMU成简单的命令行程序；</li>
 <li><code>-append &quot;console=ttyS0&quot;</code>将输出重定向到console，将会显示在标准输出stdio。</li>
 </ul>
-<p>启动后的根目录：</p>
+<p>启动后的根目录, 就是initramfs中包含的内容：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/ # ls                    </span><br><span class="line">bin   dev  init  proc  root  sbin  sys   usr</span><br></pre></td></tr></table></figure>
 <p>由于系统自带的GDB版本为7.2，内核辅助脚本无法使用，重新编译了一个新版GDB：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd gdb-7.9.1</span><br><span class="line">$ ./configure --with-python=$(which python2.7)</span><br><span class="line">$ make -j 20</span><br><span class="line">$ sudo make install</span><br></pre></td></tr></table></figure>
@@ -396,7 +396,7 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">(gdb) b cmdline_proc_show                           </span><br><span class="line">Breakpoint 1 at 0xffffffff81298d99: file fs/proc/cmdline.c, line 9.                                      </span><br><span class="line">(gdb) c                                             </span><br><span class="line">Continuing.                                         </span><br><span class="line"></span><br><span class="line">Breakpoint 1, cmdline_proc_show (m=0xffff880006695000, v=0x1 &lt;irq_stack_union+1&gt;) at fs/proc/cmdline.c:9</span><br><span class="line">9               seq_printf(m, &quot;%s\n&quot;, saved_command_line);                                              </span><br><span class="line">(gdb) bt</span><br><span class="line">#0  cmdline_proc_show (m=0xffff880006695000, v=0x1 &lt;irq_stack_union+1&gt;) at fs/proc/cmdline.c:9</span><br><span class="line">#1  0xffffffff81247439 in seq_read (file=0xffff880006058b00, buf=&lt;optimized out&gt;, size=&lt;optimized out&gt;, ppos=&lt;optimized out&gt;) at fs/seq_file.c:234</span><br><span class="line">#2  0xffffffff812908b3 in proc_reg_read (file=&lt;optimized out&gt;, buf=&lt;optimized out&gt;, count=&lt;optimized out&gt;, ppos=&lt;optimized out&gt;) at fs/proc/inode.c:217</span><br><span class="line">#3  0xffffffff8121f174 in do_loop_readv_writev (filp=0xffff880006058b00, iter=0xffffc900001bbb38, ppos=&lt;optimized out&gt;, type=0, flags=&lt;optimized out&gt;) at fs/read_write.c:694</span><br><span class="line">#4  0xffffffff8121ffed in do_iter_read (file=0xffff880006058b00, iter=0xffffc900001bbb38, pos=0xffffc900001bbd00, flags=0) at fs/read_write.c:918</span><br><span class="line">#5  0xffffffff81220138 in vfs_readv (file=0xffff880006058b00, vec=&lt;optimized out&gt;, vlen=&lt;optimized out&gt;, pos=0xffffc900001bbd00, flags=0) at fs/read_write.c:980</span><br><span class="line">#6  0xffffffff812547ed in kernel_readv (offset=&lt;optimized out&gt;, vlen=&lt;optimized out&gt;, vec=&lt;optimized out&gt;, file=&lt;optimized out&gt;) at fs/splice.c:361</span><br><span class="line">#7  default_file_splice_read (in=0xffff880006058b00, ppos=0xffffc900001bbdd0, pipe=&lt;optimized out&gt;, len=&lt;optimized out&gt;, flags=&lt;optimized out&gt;) at fs/splice.c:416</span><br><span class="line">#8  0xffffffff81253c7c in do_splice_to (in=0xffff880006058b00, ppos=0xffffc900001bbdd0, pipe=0xffff8800071a1f00, len=16777216, flags=&lt;optimized out&gt;) at fs/splice.c:880</span><br><span class="line">#9  0xffffffff81253f77 in splice_direct_to_actor (in=&lt;optimized out&gt;, sd=0xffffc900001bbe18, actor=&lt;optimized out&gt;) at fs/splice.c:952</span><br><span class="line">#10 0xffffffff812540e3 in do_splice_direct (in=0xffff880006058b00, ppos=0xffffc900001bbec0, out=&lt;optimized out&gt;, opos=&lt;optimized out&gt;, len=&lt;optimized out&gt;, flags=&lt;optimized out&gt;) at fs/splice.c:1061</span><br><span class="line">#11 0xffffffff8122147f in do_sendfile (out_fd=&lt;optimized out&gt;, in_fd=&lt;optimized out&gt;, ppos=0x0 &lt;irq_stack_union&gt;, count=&lt;optimized out&gt;, max=&lt;optimized out&gt;) at fs/read_write.c:1434</span><br><span class="line">#12 0xffffffff812216f5 in SYSC_sendfile64 (count=&lt;optimized out&gt;, offset=&lt;optimized out&gt;, in_fd=&lt;optimized out&gt;, out_fd=&lt;optimized out&gt;) at fs/read_write.c:1495</span><br><span class="line">#13 SyS_sendfile64 (out_fd=1, in_fd=3, offset=0, count=&lt;optimized out&gt;) at fs/read_write.c:1481</span><br><span class="line">#14 0xffffffff8175edb7 in entry_SYSCALL_64_fastpath () at arch/x86/entry/entry_64.S:203</span><br><span class="line">#15 0x0000000000000000 in ?? ()</span><br><span class="line">(gdb) p saved_command_line</span><br><span class="line">$2 = 0xffff880007e68980 &quot;console=ttyS0&quot;</span><br></pre></td></tr></table></figure>
 <h2 id="获取当前进程"><a href="#获取当前进程" class="headerlink" title="获取当前进程"></a>获取当前进程</h2><p>《深入理解Linux内核》第三版第三章–进程，讲到内核采用了一种精妙的设计来获取当前进程。</p>
 <p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/debug-linux-kernel-with-qemu-and-gdb/process.jpg" alt=""></p>
-<p>Linux把跟一个进程相关的<code>thread_info</code>和内核栈stack放在了同一内存区域，内核通过esp寄存器获得当前CPU上运行的进程的<code>thread_info</code>地址，由于进程描述符task字段在<code>thread_info</code>结构体中偏移量为0，进而获得task地址。相关汇编指令如下：</p>
+<p>Linux把跟一个进程相关的<code>thread_info</code>和内核栈stack放在了同一内存区域，内核通过esp寄存器获得当前CPU上运行进程的内核栈栈底地址，该地址正好是<code>thread_info</code>地址，由于进程描述符指针task字段在<code>thread_info</code>结构体中偏移量为0，进而获得task。相关汇编指令如下：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">movl $0xffffe000, %ecx      /* 内核栈大小为8K，屏蔽低13位有效位。</span><br><span class="line">andl $esp, %ecx</span><br><span class="line">movl (%ecx), p</span><br></pre></td></tr></table></figure>
 <p>指令运行后，p就获得当前CPU上运行进程的描述符指针。</p>
 <p>然而在调试器中调了下，发现这种机制早已经被废弃掉了。<code>thread_info</code>结构体中只剩下一个字段flags，进程描述符字段task已经删除，无法通过<code>thread_info</code>获取进程描述符了。</p>
@@ -478,6 +478,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2018/01/19/submit-linux-kernel-patch/" rel="prev" title="提交Linux内核Patch">
+                提交Linux内核Patch <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -556,7 +560,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -578,7 +582,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-count">39</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
