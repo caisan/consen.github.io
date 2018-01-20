@@ -354,7 +354,7 @@
 
       
         
-          <p>上一篇博客<a href="https://consen.github.io/2018/01/17/debug-linux-kernel-with-qemu-and-gdb/">使用QEMU和GDB调试Linux内核</a>，最后使用内核提供的GDB辅助调试功能获取当前运行进程，发现内核已经不再使用<code>thread_info</code>获取当前进程，而是使用Per-CPU变量。而且从内核4.9版本开始，<code>thread_info</code>也不再位于内核栈底部，然而内核提供的辅助调试函数<code>lx_thread_info()</code>仍然通过内核栈底地址获取<code>thread_info</code>，很明显这是个Bug，于是决定修复并提交一个内核Patch，很快就得到内核维护人员的回应，将Patch提交到了内核主分支。</p>
+          <p>上一篇博客<a href="https://consen.github.io/2018/01/17/debug-linux-kernel-with-qemu-and-gdb/">使用QEMU和GDB调试Linux内核</a>，最后使用内核提供的GDB扩展功能获取当前运行进程，发现内核已经不再使用<code>thread_info</code>获取当前进程，而是使用Per-CPU变量。而且从内核4.9版本开始，<code>thread_info</code>也不再位于内核栈底部，然而内核提供的辅助调试函数<code>lx_thread_info()</code>仍然通过内核栈底地址获取<code>thread_info</code>，很明显这是个Bug，于是决定将其修复并提交一个内核Patch，提交后很快就得到内核维护人员的回应，将Patch提交到了内核主分支。</p>
 <p>Linux内核Patch提交还是采用邮件列表方式，不过提供了自动化工具。</p>
           <!--noindex-->
           <div class="post-button text-center">
